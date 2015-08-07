@@ -10,7 +10,7 @@ var DockerMachine = {
     return resources.dockerMachine();
   },
   name: function () {
-    return 'docker-vm';
+    return 'deconst-client';
   },
   isoversion: function (machineName = this.name()) {
     try {
