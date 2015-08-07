@@ -79,7 +79,7 @@ module.exports = function (grunt) {
           platform: 'darwin',
           arch: 'x64',
           asar: true,
-          'app-bundle-id': 'com.kite-shell.kite-shell',
+          'app-bundle-id': 'com.deconst.client',
           'app-version': packagejson.version
         }
       }

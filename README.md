@@ -1,10 +1,10 @@
-## Kite Shell
+## Deconst Client
 
-*Kite Shell = Electron + Docker*
+*Build Deconst documentation locally*
 
-Kite Shell is a template for an Electron application that can portably execute arbitrary processes in Docker containers, hosted within a virtual machine.
+The Deconst client is an application that can build a content repository as you edit its source, with true layouts and styles.
 
-It's based heavily on [Kitematic](https://kitematic.com/). Basically, I'm extracting the bits of Kitematic that deal with bootstrapping and initializing [docker-machine](https://docs.docker.com/machine/), and pruning things like "UI".
+It's built on [kite-shell](https://github.com/smashwilson/kite-shell), which is based heavily on [Kitematic](https://kitematic.com/).
 
 ## Copyright and License
 

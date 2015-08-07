@@ -70,7 +70,7 @@ var MenuTemplate = function () {
             metrics.track('Opened Issue Reporter', {
               from: 'menu'
             });
-            shell.openExternal('https://github.com/smashwilson/kite-shell/issues/new');
+            shell.openExternal('https://github.com/deconst/client/issues/new');
           }
         }
       ]
