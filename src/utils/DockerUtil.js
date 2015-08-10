@@ -6,7 +6,6 @@ import path from 'path';
 import dockerode from 'dockerode';
 import _ from 'underscore';
 import util from './Util';
-import hubUtil from './HubUtil';
 import containerServerActions from '../actions/ContainerServerActions';
 import Promise from 'bluebird';
 import rimraf from 'rimraf';
@@ -348,21 +347,7 @@ export default {
   },
 
   pullImage (repository, tag, callback, progressCallback, blockedCallback) {
-    let opts = {}, config = hubUtil.config();
-    if (!hubUtil.config()) {
-      opts = {};
-    } else {
-      let [username, password] = hubUtil.creds(config);
-      opts = {
-        authconfig: {
-          username,
-          password,
-          auth: ''
-        }
-      };
-    }
-
-    this.client.pull(repository + ':' + tag, opts, (err, stream) => {
+    this.client.pull(repository + ':' + tag, {}, (err, stream) => {
       if (err) {
         callback(err);
         return;

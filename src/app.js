@@ -9,16 +9,12 @@ import ipc from 'ipc';
 import machine from './utils/DockerMachineUtil';
 import template from './menutemplate';
 import webUtil from './utils/WebUtil';
-import hubUtil from './utils/HubUtil';
 var app = remote.require('app');
 import request from 'request';
 import docker from './utils/DockerUtil';
-import hub from './utils/HubUtil';
 import Router from 'react-router';
 import routes from './routes';
 import routerContainer from './router';
-
-hubUtil.init();
 
 webUtil.addWindowSizeSaving();
 webUtil.addLiveReload();
@@ -35,19 +31,15 @@ routerContainer.set(router);
 SetupStore.setup().then(() => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template()));
   docker.init();
-  if (!hub.prompted() && !hub.loggedin()) {
-    // router.transitionTo('login');
-  } else {
-    // router.transitionTo('search');
-  }
+  router.transitionTo('repositoryList');
 }).catch(err => {
   throw err;
 });
 
 ipc.on('application:quitting', () => {
-  if (localStorage.getItem('settings.closeVMOnQuit') === 'true') {
-    machine.stop();
-  }
+  // if (localStorage.getItem('settings.closeVMOnQuit') === 'true') {
+  //   machine.stop();
+  // }
 });
 
 module.exports = {

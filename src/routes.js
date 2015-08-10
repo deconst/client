@@ -3,6 +3,8 @@
 import React from 'react/addons';
 import Setup from './components/Setup.react';
 import About from './components/About.react';
+import ContentRepositoryList from './components/ContentRepositoryList.react';
+import NewContentRepository from './components/NewContentRepository.react';
 import Router from 'react-router';
 
 var Route = Router.Route;
@@ -20,6 +22,8 @@ var App = React.createClass({
 var routes = (
   <Route name="app" path="/" handler={App}>
     <Route name="about" path="/about" handler={About}/>
+    <Route name="repositoryList" path="/repository-list" handler={ContentRepositoryList}/>
+    <Route name="newRepository" path="/new-repository" handler={NewContentRepository}/>
     <DefaultRoute name="setup" handler={Setup}/>
   </Route>
 );

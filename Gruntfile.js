@@ -15,7 +15,7 @@ module.exports = function (grunt) {
   env.NODE_PATH = '..:' + env.NODE_PATH;
   env.NODE_ENV = target;
 
-  var certificateFile = grunt.option('certificateFile');
+  // var certificateFile = grunt.option('certificateFile');
 
   var version = function (str) {
     var match = str.match(/(\d+\.\d+\.\d+)/);
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
     });
   });
 
-  var BASENAME = 'Kite-Shell';
+  var BASENAME = 'Deconst';
   var APPNAME = BASENAME;
 
   if (alpha) {
