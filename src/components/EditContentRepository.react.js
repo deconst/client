@@ -2,7 +2,7 @@ import React from 'react/addons';
 import Router from 'react-router';
 import Header from './Header.react';
 
-var NewContentRepository = React.createClass({
+var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
 
   handleRepositoryPathChange: function (e) {
@@ -23,7 +23,7 @@ var NewContentRepository = React.createClass({
 
   render: function () {
     return (
-      <div className="new-content-repository">
+      <div className="edit-content-repository">
         <Header />
         <h1>New Content Repository</h1>
         <div className="repository-path">
@@ -47,4 +47,4 @@ var NewContentRepository = React.createClass({
   }
 });
 
-module.exports = NewContentRepository;
+module.exports = EditContentRepository;

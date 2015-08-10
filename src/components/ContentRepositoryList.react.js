@@ -23,9 +23,11 @@ var ContentRepositoryList = React.createClass({
 
   render: function () {
     let cards = this.state.repositories.map(repo => {
+      let k = "edit-" + repo.name;
+
       return (
         <li>
-          <ContentRepositoryCard key={repo.name} repository={repo} />
+          <ContentRepositoryCard key={k} repository={repo} />
         </li>
       )
     })
@@ -37,8 +39,8 @@ var ContentRepositoryList = React.createClass({
           <h1>Content Repositories</h1>
           <ul className="content-repositories">
             {cards}
-            <li className="add-content-repository">
-              <Router.Link to="newRepository">New...</Router.Link>
+            <li key="new-repository" className="add-content-repository">
+              <Router.Link to="editRepository">New...</Router.Link>
             </li>
           </ul>
         </div>
