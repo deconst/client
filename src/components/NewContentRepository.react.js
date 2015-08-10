@@ -1,5 +1,6 @@
 import React from 'react/addons';
 import Router from 'react-router';
+import Header from './Header.react';
 
 var NewContentRepository = React.createClass({
   mixins: [Router.Navigation],
@@ -23,6 +24,7 @@ var NewContentRepository = React.createClass({
   render: function () {
     return (
       <div className="new-content-repository">
+        <Header />
         <h1>New Content Repository</h1>
         <div className="repository-path">
           <h3>Repository Path</h3>
