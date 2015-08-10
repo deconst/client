@@ -48,17 +48,14 @@ var Setup = React.createClass({
       cancelled: SetupStore.cancelled()
     });
   },
-  renderContents: function () {
-    var img = 'virtualbox.png';
-    if (SetupStore.step().name === 'init' || SetupStore.step().name === 'start') {
-      img = 'boot2docker.png';
-    }
+  renderProgress: function () {
+    let progressStyle = {
+      width: this.state.progress + "%"
+    };
+
     return (
-      <div className="contents">
-        <RetinaImage src={img} checkIfRetinaImgExists={false}/>
-        <div className="detail">
-          <Radial progress={this.state.progress} thick={true} gray={true}/>
-        </div>
+      <div className="setup-progress">
+        <div className="completed" style={progressStyle}/>
       </div>
     );
   },
@@ -66,10 +63,7 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
-          <div className="image">
-            {this.renderContents()}
-          </div>
+        <div className="setup-content container">
           <div className="desc">
             <div className="content">
               <h4>Step {SetupStore.number()} out of {SetupStore.stepCount()}</h4>
@@ -77,6 +71,7 @@ var Setup = React.createClass({
               <p>{SetupStore.step().message}</p>
             </div>
           </div>
+          {this.renderProgress()}
         </div>
       </div>
     );
@@ -85,15 +80,13 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
-          <div className="image">
-            {this.renderContents()}
-          </div>
+        <div className="setup-content container">
+          {this.renderProgress()}
           <div className="desc">
             <div className="content">
               <h4>Setup Cancelled</h4>
               <h1>Couldn&#39;t Install Requirements</h1>
-              <p>Kitematic didn&#39;t receive the administrative privileges required to install or upgrade VirtualBox &amp; Docker.</p>
+              <p>Deconst didn&#39;t receive the administrative privileges required to install or upgrade VirtualBox &amp; Docker.</p>
               <p>Please click retry. If VirtualBox is not installed, you can download &amp; install it manually from the <a onClick={this.handleOpenWebsite}>official Oracle website</a>.</p>
               <p><button className="btn btn-action" onClick={this.handleCancelRetry}>Retry</button></p>
             </div>
@@ -106,19 +99,12 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
-          <div className="image">
-            <div className="contents">
-              <RetinaImage src="install-error.png" checkIfRetinaImgExists={false}/>
-              <div className="detail">
-              </div>
-            </div>
-          </div>
+        <div className="setup-content container">
           <div className="desc">
             <div className="content">
               <h4>Setup Error</h4>
               <h1>We&#39;re Sorry!</h1>
-              <p>There seems to have been an unexpected error with Kitematic:</p>
+              <p>There seems to have been an unexpected error with Deconst:</p>
               <p className="error">{this.state.error.message || this.state.error}</p>
               <p className="setup-actions">
                 <button className="btn btn-action" onClick={this.handleErrorRetry}>Retry Setup</button>
