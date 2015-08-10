@@ -49,9 +49,13 @@ var Setup = React.createClass({
     });
   },
   renderProgress: function () {
+    let progressStyle = {
+      width: this.state.progress + "%"
+    };
+
     return (
       <div className="setup-progress">
-        <div className="completed" width={this.state.progress}/>
+        <div className="completed" style={progressStyle}/>
       </div>
     );
   },
@@ -59,7 +63,7 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
+        <div className="setup-content container">
           <div className="desc">
             <div className="content">
               <h4>Step {SetupStore.number()} out of {SetupStore.stepCount()}</h4>
@@ -76,7 +80,7 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
+        <div className="setup-content container">
           {this.renderProgress()}
           <div className="desc">
             <div className="content">
@@ -95,7 +99,7 @@ var Setup = React.createClass({
     return (
       <div className="setup">
         <Header hideLogin={true}/>
-        <div className="setup-content">
+        <div className="setup-content container">
           <div className="desc">
             <div className="content">
               <h4>Setup Error</h4>

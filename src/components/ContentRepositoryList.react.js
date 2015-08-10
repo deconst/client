@@ -33,13 +33,15 @@ var ContentRepositoryList = React.createClass({
     return (
       <div className="content-repository-list">
         <Header />
-        <h1>Content Repositories</h1>
-        <ul className="content-repositories">
-          {cards}
-          <li className="add-content-repository">
-            <Router.Link to="newRepository">New...</Router.Link>
-          </li>
-        </ul>
+        <div className="container">
+          <h1>Content Repositories</h1>
+          <ul className="content-repositories">
+            {cards}
+            <li className="add-content-repository">
+              <Router.Link to="newRepository">New...</Router.Link>
+            </li>
+          </ul>
+        </div>
       </div>
     )
   }

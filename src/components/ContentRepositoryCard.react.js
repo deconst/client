@@ -14,10 +14,10 @@ var ContentRepositoryCard = React.createClass({
             <a className="preview" href="#">preview</a>
           </p>
         </div>
-        <div className="controls">
-          <a href="#">edit</a>
-          <a href="#">remove</a>
-        </div>
+        <ul className="controls">
+          <li><a href="#">edit</a></li>
+          <li><a href="#">remove</a></li>
+        </ul>
       </div>
     )
   }
