@@ -26,8 +26,8 @@ var ContentRepositoryList = React.createClass({
       let k = "edit-" + repo.name;
 
       return (
-        <li>
-          <ContentRepositoryCard key={k} repository={repo} />
+        <li key={k}>
+          <ContentRepositoryCard repository={repo} />
         </li>
       )
     })
