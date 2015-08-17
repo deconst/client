@@ -15,6 +15,7 @@ import docker from './utils/DockerUtil';
 import Router from 'react-router';
 import routes from './routes';
 import routerContainer from './router';
+import contentRepositoryActions from './actions/ContentRepositoryActions';
 
 webUtil.addWindowSizeSaving();
 webUtil.addLiveReload();
@@ -31,6 +32,7 @@ routerContainer.set(router);
 SetupStore.setup().then(() => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template()));
   docker.init();
+  contentRepositoryActions.launch("1", "/Users/ashl6947/writing/docs-quickstart");
   router.transitionTo('repositoryList');
 }).catch(err => {
   throw err;
