@@ -5,11 +5,12 @@ import DockerUtil from '../utils/DockerUtil';
 
 class ContentRepository {
 
-  constructor (id, controlRepositoryLocation, contentRepositoryPath) {
+  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
     this.id = id;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
+    this.preparer = preparer;
 
     this.contentContainer = null;
     this.presenterContainer = null;
@@ -19,15 +20,23 @@ class ContentRepository {
     return path.basename(this.contentRepositoryPath);
   }
 
-  publicURL() {
-    if (!this.presenterContainer) {
+  _containerURL(container) {
+    if (!container) {
       return "";
     }
 
     let host = DockerUtil.host;
-    let port = this.presenterContainer.NetworkSettings.Ports['8080/tcp'][0].HostPort;
+    let port = container.NetworkSettings.Ports['8080/tcp'][0].HostPort;
 
     return "http://" + host + ":" + port + "/";
+  }
+
+  publicURL() {
+    return this._containerURL(this.presenterContainer);
+  }
+
+  contentURL() {
+    return this._containerURL(this.contentContainer);
   }
 
 }
@@ -40,7 +49,7 @@ class ContentRepositoryStore {
   }
 
   onLaunch({id, controlRepositoryLocation, contentRepositoryPath}) {
-    this.repositories[id] = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath);
+    this.repositories[id] = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath, "sphinx");
   }
 
   onPodLaunched({id, contentContainer, presenterContainer}) {
