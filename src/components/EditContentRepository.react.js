@@ -19,7 +19,7 @@ var EditContentRepository = React.createClass({
   },
 
   handleCreate: function () {
-    ContentRepositoryActions.launch("1", this.controlRepositoryLocation, this.contentRepositoryPath);
+    ContentRepositoryActions.launch(this.controlRepositoryLocation, this.contentRepositoryPath);
 
     this.transitionTo("repositoryList");
   },
