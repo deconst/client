@@ -1,7 +1,7 @@
 import React from 'react/addons';
 import Router from 'react-router';
 import Header from './Header.react';
-import contentRepositoryActions from '../actions/ContentRepositoryActions';
+import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
@@ -22,7 +22,7 @@ var EditContentRepository = React.createClass({
     // this.contentRepositoryPath = "/Users/ashl6947/writing/docs-quickstart";
     // this.controlRepositoryLocation = "/Users/ashl6947/writing/nexus-control";
 
-    contentRepositoryActions.launch("1", this.controlRepositoryLocation, this.contentRepositoryPath);
+    ContentRepositoryActions.launch("1", this.controlRepositoryLocation, this.contentRepositoryPath);
 
     this.transitionTo("repositoryList");
   },

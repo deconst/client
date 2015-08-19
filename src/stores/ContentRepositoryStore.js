@@ -1,6 +1,6 @@
 import path from 'path';
 import alt from '../alt';
-import contentRepositoryActions from '../actions/ContentRepositoryActions';
+import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import DockerUtil from '../utils/DockerUtil';
 
 class ContentRepository {
@@ -35,7 +35,7 @@ class ContentRepository {
 class ContentRepositoryStore {
 
   constructor() {
-    this.bindActions(contentRepositoryActions);
+    this.bindActions(ContentRepositoryActions);
     this.repositories = {};
   }
 

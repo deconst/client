@@ -1,10 +1,10 @@
 import alt from '../alt';
-import dockerUtil from '../utils/DockerUtil';
+import DockerUtil from '../utils/DockerUtil';
 
 class ContentRepositoryActions {
 
   launch (id, controlRepositoryLocation, contentRepositoryPath) {
-    dockerUtil.launchServicePod(id, controlRepositoryLocation);
+    DockerUtil.launchServicePod(id, controlRepositoryLocation);
     this.dispatch({id, controlRepositoryLocation, contentRepositoryPath});
   }
 
