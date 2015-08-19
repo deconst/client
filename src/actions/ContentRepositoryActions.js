@@ -12,8 +12,17 @@ class ContentRepositoryActions {
     this.dispatch({id, controlRepositoryLocation, contentRepositoryPath});
   }
 
+  prepare (id, preparer, contentURL, contentRepositoryPath) {
+    DockerUtil.launchPreparer(id, preparer, contentURL, contentRepositoryPath);
+    this.dispatch({id});
+  }
+
   podLaunched ({id, contentContainer, presenterContainer}) {
     this.dispatch({id, contentContainer, presenterContainer});
+  }
+
+  preparerLaunched ({id, container}) {
+    this.dispatch({id, container});
   }
 
   error ({id, error}) {

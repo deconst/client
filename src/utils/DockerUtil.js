@@ -350,5 +350,31 @@ export default {
 
       contentRepositoryActions.podLaunched({id, contentContainer, presenterContainer});
     });
+  },
+
+  launchPreparer (id, preparer, contentURL, contentRepoPath) {
+    let params = {
+      Volumes: {
+        "/usr/control-repo": {}
+      },
+      Env: [
+        "CONTENT_STORE_URL=" + contentURL,
+        "CONTENT_STORE_APIKEY=supersecret",
+        "TRAVIS_PULL_REQUEST=false"
+      ],
+      HostConfig: {
+        Binds: [contentRepoPath + ":/usr/control-repo"],
+        ReadonlyRootfs: true
+      }
+    };
+
+    this.run("preparer-" + id, "quay.io/deconst/preparer-" + preparer, "latest", params, (error, container) => {
+      if (error) {
+        contentRepositoryActions.error({id, error});
+        return;
+      }
+
+      contentRepositoryActions.preparerLaunched({id, container});
+    })
   }
 };

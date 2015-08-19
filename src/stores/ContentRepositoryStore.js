@@ -55,18 +55,36 @@ class ContentRepositoryStore {
   onPodLaunched({id, contentContainer, presenterContainer}) {
     let repo = this.repositories[id];
     if (!repo) {
-      return ;
+      return;
     }
 
-    repo.state = "ready"
+    repo.state = "ready";
     repo.contentContainer = contentContainer;
     repo.presenterContainer = presenterContainer;
+  }
+
+  onPrepare({id}) {
+    let repo = this.repositories[id];
+    if (!repo) {
+      return;
+    }
+
+    repo.state = "launching preparer";
+  }
+
+  onPreparerLaunched({id}) {
+    let repo = this.repositories[id];
+    if (!repo) {
+      return;
+    }
+
+    repo.state = "submitting";
   }
 
   onError({id, error}) {
     let repo = this.repositories[id];
     if (!repo) {
-      return ;
+      return;
     }
 
     repo.state = "error";
