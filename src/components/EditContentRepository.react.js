@@ -19,9 +19,6 @@ var EditContentRepository = React.createClass({
   },
 
   handleCreate: function () {
-    // this.contentRepositoryPath = "/Users/ashl6947/writing/docs-quickstart";
-    // this.controlRepositoryLocation = "/Users/ashl6947/writing/nexus-control";
-
     ContentRepositoryActions.launch("1", this.controlRepositoryLocation, this.contentRepositoryPath);
 
     this.transitionTo("repositoryList");
