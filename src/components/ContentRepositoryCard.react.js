@@ -6,11 +6,11 @@ var ContentRepositoryCard = React.createClass({
 
     return (
       <div className="content-repository-card">
-        <h2>{repo.contentRepositoryPath}</h2>
+        <h2>{repo.name()}</h2>
         <div className="details">
           <p className="content-path">{repo.contentRepositoryPath}</p>
           <p className="content-preview">
-            <span className="status">{repo.status}</span>
+            <span className="state">{repo.state}</span>
             <a className="preview" href="#">preview</a>
           </p>
         </div>

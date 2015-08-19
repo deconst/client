@@ -11,19 +11,22 @@ var ContentRepositoryList = React.createClass({
   },
 
   componentDidMount: function () {
+    console.log("componentDidMount");
     ContentRepositoryStore.listen(this.update);
   },
 
-  componentDidUnmount: function () {
+  componentWillUnmount: function () {
+    console.log("componentWillUnmount");
     ContentRepositoryStore.unlisten(this.update);
   },
 
   update: function (state) {
+    console.log("update");
     this.setState(state);
   },
 
   render: function () {
-    let orderedRepos = _.sortBy(_.values(this.state.repositories), r => r.id)
+    let orderedRepos = _.sortBy(_.values(this.state.repositories), r => r.id);
 
     let cards = orderedRepos.map(repo => {
       let k = "edit-" + repo.id;
@@ -33,7 +36,7 @@ var ContentRepositoryList = React.createClass({
           <ContentRepositoryCard repository={repo} />
         </li>
       )
-    })
+    });
 
     return (
       <div className="content-repository-list">
@@ -48,7 +51,7 @@ var ContentRepositoryList = React.createClass({
           </ul>
         </div>
       </div>
-    )
+    );
   }
 })
 

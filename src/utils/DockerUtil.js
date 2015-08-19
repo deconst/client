@@ -309,6 +309,7 @@ export default {
         "CONTENT_LOG_COLOR=true"
       ],
       HostConfig: {
+        PublishAllPorts: true,
         ReadonlyRootfs: true
       }
     };

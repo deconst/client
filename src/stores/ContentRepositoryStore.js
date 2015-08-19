@@ -1,5 +1,21 @@
+import path from 'path';
 import alt from '../alt';
 import contentRepositoryActions from '../actions/ContentRepositoryActions';
+
+class ContentRepository {
+
+  constructor (id, controlRepositoryLocation, contentRepositoryPath) {
+    this.id = id;
+    this.controlRepositoryLocation = controlRepositoryLocation;
+    this.contentRepositoryPath = contentRepositoryPath;
+    this.state = "launching";
+  }
+
+  name () {
+    return path.basename(this.contentRepositoryPath);
+  }
+
+}
 
 class ContentRepositoryStore {
 
@@ -8,9 +24,9 @@ class ContentRepositoryStore {
     this.repositories = {};
   }
 
-  onLaunch({id, contentRepositoryPath}) {
+  onLaunch({id, controlRepositoryLocation, contentRepositoryPath}) {
     console.log("Store: launching " + id);
-    this.repositories[id] = {id, contentRepositoryPath, state: "launching"};
+    this.repositories[id] = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath);
   }
 
   onPodLaunched({id, content, presenter}) {

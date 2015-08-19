@@ -1,6 +1,7 @@
 import React from 'react/addons';
 import Router from 'react-router';
 import Header from './Header.react';
+import contentRepositoryActions from '../actions/ContentRepositoryActions';
 
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
@@ -18,7 +19,10 @@ var EditContentRepository = React.createClass({
   },
 
   handleCreate: function () {
-    console.log("Created");
+    console.log("About to create");
+    contentRepositoryActions.launch("1", this.controlRepositoryLocation);
+
+    this.transitionTo("repositoryList");
   },
 
   render: function () {

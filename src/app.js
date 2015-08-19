@@ -32,7 +32,6 @@ routerContainer.set(router);
 SetupStore.setup().then(() => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template()));
   docker.init();
-  contentRepositoryActions.launch("1", "/Users/ashl6947/writing/docs-quickstart");
   router.transitionTo('repositoryList');
 }).catch(err => {
   throw err;

@@ -3,9 +3,9 @@ import dockerUtil from '../utils/DockerUtil';
 
 class ContentRepositoryActions {
 
-  launch (id, contentRepositoryPath) {
-    dockerUtil.launchServicePod(id, contentRepositoryPath);
-    this.dispatch({id, contentRepositoryPath});
+  launch (id, controlRepositoryLocation, contentRepositoryPath) {
+    dockerUtil.launchServicePod(id, controlRepositoryLocation);
+    this.dispatch({id, controlRepositoryLocation, contentRepositoryPath});
   }
 
   podLaunched ({id, content, presenter}) {
