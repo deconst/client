@@ -11,17 +11,14 @@ var ContentRepositoryList = React.createClass({
   },
 
   componentDidMount: function () {
-    console.log("componentDidMount");
     ContentRepositoryStore.listen(this.update);
   },
 
   componentWillUnmount: function () {
-    console.log("componentWillUnmount");
     ContentRepositoryStore.unlisten(this.update);
   },
 
   update: function (state) {
-    console.log("update");
     this.setState(state);
   },
 
@@ -29,13 +26,11 @@ var ContentRepositoryList = React.createClass({
     let orderedRepos = _.sortBy(_.values(this.state.repositories), r => r.id);
 
     let cards = orderedRepos.map(repo => {
-      let k = "edit-" + repo.id;
-
       return (
-        <li key={k}>
+        <li key={repo.id}>
           <ContentRepositoryCard repository={repo} />
         </li>
-      )
+      );
     });
 
     return (
@@ -45,10 +40,10 @@ var ContentRepositoryList = React.createClass({
           <h1>Content Repositories</h1>
           <ul className="content-repositories">
             {cards}
-            <li key="new-repository" className="add-content-repository">
-              <Router.Link to="editRepository">New...</Router.Link>
-            </li>
           </ul>
+          <div className="actions">
+            <Router.Link to="editRepository" className="btn btn-primary">New</Router.Link>
+          </div>
         </div>
       </div>
     );

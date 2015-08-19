@@ -8,8 +8,8 @@ class ContentRepositoryActions {
     this.dispatch({id, controlRepositoryLocation, contentRepositoryPath});
   }
 
-  podLaunched ({id, content, presenter}) {
-    this.dispatch({id, content, presenter});
+  podLaunched ({id, contentContainer, presenterContainer}) {
+    this.dispatch({id, contentContainer, presenterContainer});
   }
 
   error ({id, error}) {

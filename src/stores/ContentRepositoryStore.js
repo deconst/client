@@ -1,6 +1,7 @@
 import path from 'path';
 import alt from '../alt';
 import contentRepositoryActions from '../actions/ContentRepositoryActions';
+import DockerUtil from '../utils/DockerUtil';
 
 class ContentRepository {
 
@@ -9,10 +10,24 @@ class ContentRepository {
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
+
+    this.contentContainer = null;
+    this.presenterContainer = null;
   }
 
   name () {
     return path.basename(this.contentRepositoryPath);
+  }
+
+  publicURL() {
+    if (!this.presenterContainer) {
+      return "";
+    }
+
+    let host = DockerUtil.host;
+    let port = this.presenterContainer.NetworkSettings.Ports['8080/tcp'][0].HostPort;
+
+    return "http://" + host + ":" + port + "/";
   }
 
 }
@@ -25,20 +40,18 @@ class ContentRepositoryStore {
   }
 
   onLaunch({id, controlRepositoryLocation, contentRepositoryPath}) {
-    console.log("Store: launching " + id);
     this.repositories[id] = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath);
   }
 
-  onPodLaunched({id, content, presenter}) {
-    console.log("Store: launched " + id);
+  onPodLaunched({id, contentContainer, presenterContainer}) {
     let repo = this.repositories[id];
     if (!repo) {
       return ;
     }
 
     repo.state = "ready"
-    repo.contentContainer = content;
-    repo.presenterContainer = presenter;
+    repo.contentContainer = contentContainer;
+    repo.presenterContainer = presenterContainer;
   }
 
   onError({id, error}) {

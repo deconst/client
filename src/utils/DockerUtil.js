@@ -333,8 +333,6 @@ export default {
       }
     };
 
-    console.log("Launching: " + id);
-
     async.series([
       (cb) => {
         this.run("content-" + id, "quay.io/deconst/content-service", "latest", contentParams, cb);
@@ -344,13 +342,11 @@ export default {
       }
     ], (error, containers) => {
       if (error) {
-        console.error("Boom: " +  id, error);
         contentRepositoryActions.error({id, error});
         return;
       }
 
       let [contentContainer, presenterContainer] = containers;
-      console.log("Launched: " + id);
 
       contentRepositoryActions.podLaunched({id, contentContainer, presenterContainer});
     });
