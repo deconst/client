@@ -1,16 +1,17 @@
 import React from 'react/addons';
 import Router from 'react-router';
 import Header from './Header.react';
+import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
 
   handleRepositoryPathChange: function (e) {
-    console.log("Content path: " + e.target.value);
+    this.contentRepositoryPath = e.target.value;
   },
 
   handleControlRepositoryChange: function (e) {
-    console.log("Control path: " + e.target.value);
+    this.controlRepositoryLocation = e.target.value;
   },
 
   handleCancel: function () {
@@ -18,7 +19,9 @@ var EditContentRepository = React.createClass({
   },
 
   handleCreate: function () {
-    console.log("Created");
+    ContentRepositoryActions.launch("1", this.controlRepositoryLocation, this.contentRepositoryPath);
+
+    this.transitionTo("repositoryList");
   },
 
   render: function () {

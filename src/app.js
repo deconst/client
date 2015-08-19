@@ -15,6 +15,7 @@ import docker from './utils/DockerUtil';
 import Router from 'react-router';
 import routes from './routes';
 import routerContainer from './router';
+import contentRepositoryActions from './actions/ContentRepositoryActions';
 
 webUtil.addWindowSizeSaving();
 webUtil.addLiveReload();

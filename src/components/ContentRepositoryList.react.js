@@ -1,36 +1,37 @@
 import React from 'react/addons';
 import Router from 'react-router';
+import _ from 'underscore';
 import Header from './Header.react';
 import ContentRepositoryCard from './ContentRepositoryCard.react';
+import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
 var ContentRepositoryList = React.createClass({
   getInitialState: function () {
-    return {
-      repositories: [
-        {
-          name: 'docs-developer-blog',
-          path: '/Users/ashl6947/writing/docs-developer-blog',
-          status: 'ready'
-        },
-        {
-          name: 'docs-quickstart',
-          path: '/Users/ashl6947/writing/docs-quickstart',
-          status: '...'
-        }
-      ],
-    }
+    return ContentRepositoryStore.getState();
+  },
+
+  componentDidMount: function () {
+    ContentRepositoryStore.listen(this.update);
+  },
+
+  componentWillUnmount: function () {
+    ContentRepositoryStore.unlisten(this.update);
+  },
+
+  update: function (state) {
+    this.setState(state);
   },
 
   render: function () {
-    let cards = this.state.repositories.map(repo => {
-      let k = "edit-" + repo.name;
+    let orderedRepos = _.sortBy(_.values(this.state.repositories), r => r.id);
 
+    let cards = orderedRepos.map(repo => {
       return (
-        <li>
-          <ContentRepositoryCard key={k} repository={repo} />
+        <li key={repo.id}>
+          <ContentRepositoryCard repository={repo} />
         </li>
-      )
-    })
+      );
+    });
 
     return (
       <div className="content-repository-list">
@@ -39,13 +40,13 @@ var ContentRepositoryList = React.createClass({
           <h1>Content Repositories</h1>
           <ul className="content-repositories">
             {cards}
-            <li key="new-repository" className="add-content-repository">
-              <Router.Link to="editRepository">New...</Router.Link>
-            </li>
           </ul>
+          <div className="actions">
+            <Router.Link to="editRepository" className="btn btn-primary">New</Router.Link>
+          </div>
         </div>
       </div>
-    )
+    );
   }
 })
 
