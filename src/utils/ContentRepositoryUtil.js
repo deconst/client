@@ -16,6 +16,7 @@ export class ContentRepository {
 
     this.contentContainer = null;
     this.presenterContainer = null;
+    this.preparerContainer = null;
   }
 
   name () {
@@ -46,6 +47,11 @@ export class ContentRepository {
     let isReady = this.state === "ready";
 
     return hasContentContainer && isReady;
+  }
+
+  reportError(message) {
+    this.state = "error";
+    this.error = message;
   }
 
 };

@@ -24,6 +24,10 @@ class ContentRepositoryActions {
     this.dispatch({repo, container});
   }
 
+  containerCompleted ({container}) {
+    this.dispatch({container});
+  }
+
   error ({repo, error}) {
     this.dispatch({repo, error});
   }

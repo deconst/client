@@ -34,13 +34,34 @@ class ContentRepositoryStore {
     r.state = "launching preparer";
   }
 
-  onPreparerLaunched({repo}) {
+  onPreparerLaunched({repo, container}) {
     let r = this.repositories[repo.id];
     if (!r) {
       return;
     }
 
-    r.state = "submitting";
+    r.state = "preparing";
+    r.preparerContainer = container;
+  }
+
+  onContainerCompleted({container}) {
+    // Identify which repository this container belongs to, if any.
+    for(let id in this.repositories) {
+      let r = this.repositories[id];
+      if (r.preparerContainer && r.preparerContainer.Id === container.Id) {
+        // This repository's preparer has completed.
+        r.state = "ready";
+        r.preparerContainer = null;
+      }
+
+      if (r.contentContainer && r.contentContainer.Id === container.Id) {
+        r.reportError("Content service has died.");
+      }
+
+      if (r.presenterContainer && r.presenterContainer.Id === container.Id) {
+        r.reportError("Presenter has died.");
+      }
+    }
   }
 
   onError({repo, error}) {
@@ -49,8 +70,7 @@ class ContentRepositoryStore {
       return;
     }
 
-    r.state = "error";
-    r.error = error;
+    r.reportError(error);
   }
 
 }

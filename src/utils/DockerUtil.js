@@ -162,6 +162,16 @@ export default {
           // Container destroyed
         } else if (data.id) {
           // Existing container updated
+          if (data.status === 'die') {
+            this.fetchContainer(data.id, (error, container) => {
+              if (error) {
+                console.error(error);
+                return;
+              }
+
+              contentRepositoryActions.containerCompleted({container});
+            });
+          }
         }
       });
     });
