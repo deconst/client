@@ -1,32 +1,31 @@
 import alt from '../alt';
 import DockerUtil from '../utils/DockerUtil';
+import {ContentRepository} from '../utils/ContentRepositoryUtil';
 
 class ContentRepositoryActions {
 
-  launch (controlRepositoryLocation, contentRepositoryPath) {
-    let lastID = parseInt(sessionStorage.getItem('content-repository-id') || '0');
-    let id = lastID + 1;
-    sessionStorage.setItem('content-repository-id', id.toString())
+  launch (controlRepositoryLocation, contentRepositoryPath, preparer) {
+    let repo = new ContentRepository(controlRepositoryLocation, contentRepositoryPath, preparer);
+    this.dispatch({repo});
 
-    DockerUtil.launchServicePod(id, controlRepositoryLocation);
-    this.dispatch({id, controlRepositoryLocation, contentRepositoryPath});
+    DockerUtil.launchServicePod(repo);
   }
 
-  prepare (id, preparer, contentURL, contentRepositoryPath) {
-    DockerUtil.launchPreparer(id, preparer, contentURL, contentRepositoryPath);
-    this.dispatch({id});
+  prepare (repo) {
+    DockerUtil.launchPreparer(repo);
+    this.dispatch({repo});
   }
 
-  podLaunched ({id, contentContainer, presenterContainer}) {
-    this.dispatch({id, contentContainer, presenterContainer});
+  podLaunched ({repo, contentContainer, presenterContainer}) {
+    this.dispatch({repo, contentContainer, presenterContainer});
   }
 
-  preparerLaunched ({id, container}) {
-    this.dispatch({id, container});
+  preparerLaunched ({repo, container}) {
+    this.dispatch({repo, container});
   }
 
-  error ({id, error}) {
-    this.dispatch({id, error});
+  error ({repo, error}) {
+    this.dispatch({repo, error});
   }
 
 }

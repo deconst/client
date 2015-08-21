@@ -3,44 +3,6 @@ import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import DockerUtil from '../utils/DockerUtil';
 
-class ContentRepository {
-
-  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
-    this.id = id;
-    this.controlRepositoryLocation = controlRepositoryLocation;
-    this.contentRepositoryPath = contentRepositoryPath;
-    this.state = "launching";
-    this.preparer = preparer;
-
-    this.contentContainer = null;
-    this.presenterContainer = null;
-  }
-
-  name () {
-    return path.basename(this.contentRepositoryPath);
-  }
-
-  _containerURL(container) {
-    if (!container) {
-      return "";
-    }
-
-    let host = DockerUtil.host;
-    let port = container.NetworkSettings.Ports['8080/tcp'][0].HostPort;
-
-    return "http://" + host + ":" + port + "/";
-  }
-
-  publicURL() {
-    return this._containerURL(this.presenterContainer);
-  }
-
-  contentURL() {
-    return this._containerURL(this.contentContainer);
-  }
-
-}
-
 class ContentRepositoryStore {
 
   constructor() {
@@ -48,47 +10,47 @@ class ContentRepositoryStore {
     this.repositories = {};
   }
 
-  onLaunch({id, controlRepositoryLocation, contentRepositoryPath}) {
-    this.repositories[id] = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath, "sphinx");
+  onLaunch({repo}) {
+    this.repositories[repo.id] = repo;
   }
 
-  onPodLaunched({id, contentContainer, presenterContainer}) {
-    let repo = this.repositories[id];
-    if (!repo) {
+  onPodLaunched({repo, contentContainer, presenterContainer}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
       return;
     }
 
-    repo.state = "ready";
-    repo.contentContainer = contentContainer;
-    repo.presenterContainer = presenterContainer;
+    r.state = "ready";
+    r.contentContainer = contentContainer;
+    r.presenterContainer = presenterContainer;
   }
 
-  onPrepare({id}) {
-    let repo = this.repositories[id];
-    if (!repo) {
+  onPrepare({repo}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
       return;
     }
 
-    repo.state = "launching preparer";
+    r.state = "launching preparer";
   }
 
-  onPreparerLaunched({id}) {
-    let repo = this.repositories[id];
-    if (!repo) {
+  onPreparerLaunched({repo}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
       return;
     }
 
-    repo.state = "submitting";
+    r.state = "submitting";
   }
 
-  onError({id, error}) {
-    let repo = this.repositories[id];
-    if (!repo) {
+  onError({repo, error}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
       return;
     }
 
-    repo.state = "error";
-    repo.error = error;
+    r.state = "error";
+    r.error = error;
   }
 
 }

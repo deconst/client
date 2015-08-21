@@ -1,9 +1,14 @@
 import React from 'react/addons';
 import shell from 'shell';
+import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
 var ContentRepositoryCard = React.createClass({
   handlePreview: function () {
     shell.openExternal(this.props.repository.publicURL());
+  },
+
+  handleSubmit: function () {
+    ContentRepositoryActions.prepare(this.props.repository);
   },
 
   render: function () {
@@ -16,6 +21,7 @@ var ContentRepositoryCard = React.createClass({
           <p className="content-path">{repo.contentRepositoryPath}</p>
           <p className="content-preview">
             <span className="state">{repo.state}</span>
+            <a className="btn btn-info btn-sm" onClick={this.handleSubmit}>submit</a>
             <a className="preview" onClick={this.handlePreview}>{repo.publicURL()}</a>
           </p>
           <p className="error">
