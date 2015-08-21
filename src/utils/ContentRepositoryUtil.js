@@ -41,4 +41,11 @@ export class ContentRepository {
     return this._containerURL(this.contentContainer);
   }
 
+  canSubmit() {
+    let hasContentContainer = !! this.contentContainer;
+    let isReady = this.state === "ready";
+
+    return hasContentContainer && isReady;
+  }
+
 };

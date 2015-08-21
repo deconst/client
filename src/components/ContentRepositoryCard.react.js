@@ -13,6 +13,7 @@ var ContentRepositoryCard = React.createClass({
 
   render: function () {
     let repo = this.props.repository;
+    let disableSubmit = ! repo.canSubmit();
 
     return (
       <div className="content-repository-card">
@@ -20,8 +21,8 @@ var ContentRepositoryCard = React.createClass({
         <div className="details">
           <p className="content-path">{repo.contentRepositoryPath}</p>
           <p className="content-preview">
+            <a className="btn btn-info btn-sm submit" onClick={this.handleSubmit} disabled={disableSubmit}>submit</a>
             <span className="state">{repo.state}</span>
-            <a className="btn btn-info btn-sm" onClick={this.handleSubmit}>submit</a>
             <a className="preview" onClick={this.handlePreview}>{repo.publicURL()}</a>
           </p>
           <p className="error">
