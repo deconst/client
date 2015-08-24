@@ -162,6 +162,16 @@ export default {
           // Container destroyed
         } else if (data.id) {
           // Existing container updated
+          if (data.status === 'die') {
+            this.fetchContainer(data.id, (error, container) => {
+              if (error) {
+                console.error(error);
+                return;
+              }
+
+              contentRepositoryActions.containerCompleted({container});
+            });
+          }
         }
       });
     });
@@ -299,7 +309,7 @@ export default {
     });
   },
 
-  launchServicePod (id, controlRepoPath) {
+  launchServicePod (repo) {
     let contentParams = {
       Env: [
         "NODE_ENV=development",
@@ -323,11 +333,12 @@ export default {
         "CONTROL_REPO_PATH=/var/control-repo",
         "CONTENT_SERVICE_URL=http://content:8080/",
         "PRESENTER_LOG_LEVEL=debug",
-        "PRESENTER_LOG_COLOR=true"
+        "PRESENTER_LOG_COLOR=true",
+        "PRESENTED_URL_DOMAIN=developer.rackspace.com",
       ],
       HostConfig: {
-        Binds: [ controlRepoPath + ":/var/control-repo:ro" ],
-        Links: [ "content-" + id + ":content" ],
+        Binds: [ repo.controlRepositoryLocation + ":/var/control-repo:ro" ],
+        Links: [ "content-" + repo.id + ":content" ],
         PublishAllPorts: true,
         ReadonlyRootfs: true
       }
@@ -335,20 +346,46 @@ export default {
 
     async.series([
       (cb) => {
-        this.run("content-" + id, "quay.io/deconst/content-service", "latest", contentParams, cb);
+        this.run("content-" + repo.id, "quay.io/deconst/content-service", "latest", contentParams, cb);
       },
       (cb) => {
-        this.run("presenter-" + id, "quay.io/deconst/presenter", "latest", presenterParams, cb);
+        this.run("presenter-" + repo.id, "quay.io/deconst/presenter", "latest", presenterParams, cb);
       }
     ], (error, containers) => {
       if (error) {
-        contentRepositoryActions.error({id, error});
+        contentRepositoryActions.error({repo, error});
         return;
       }
 
       let [contentContainer, presenterContainer] = containers;
 
-      contentRepositoryActions.podLaunched({id, contentContainer, presenterContainer});
+      contentRepositoryActions.podLaunched({repo, contentContainer, presenterContainer});
     });
+  },
+
+  launchPreparer (repo) {
+    let params = {
+      Volumes: {
+        "/usr/control-repo": {}
+      },
+      Env: [
+        "CONTENT_STORE_URL=" + repo.contentURL(),
+        "CONTENT_STORE_APIKEY=supersecret",
+        "TRAVIS_PULL_REQUEST=false"
+      ],
+      HostConfig: {
+        Binds: [repo.contentRepositoryPath + ":/usr/control-repo"],
+        ReadonlyRootfs: true
+      }
+    };
+
+    this.run("preparer-" + repo.id, "quay.io/deconst/preparer-" + repo.preparer, "latest", params, (error, container) => {
+      if (error) {
+        contentRepositoryActions.error({repo, error});
+        return;
+      }
+
+      contentRepositoryActions.preparerLaunched({repo, container});
+    })
   }
 };

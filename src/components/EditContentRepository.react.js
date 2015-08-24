@@ -6,12 +6,24 @@ import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
 
+  getInitialState: function () {
+    return {
+      contentRepositoryPath: "/Users/ashl6947/writing/docs-quickstart",
+      controlRepositoryLocation: "/Users/ashl6947/writing/nexus-control",
+      preparer: "sphinx"
+    };
+  },
+
   handleRepositoryPathChange: function (e) {
-    this.contentRepositoryPath = e.target.value;
+    this.setState({contentRepositoryPath: e.target.value});
   },
 
   handleControlRepositoryChange: function (e) {
-    this.controlRepositoryLocation = e.target.value;
+    this.setState({controlRepositoryLocation: e.target.value});
+  },
+
+  handlePreparerChange: function (e) {
+    this.setState({preparer: e.target.value});
   },
 
   handleCancel: function () {
@@ -19,7 +31,8 @@ var EditContentRepository = React.createClass({
   },
 
   handleCreate: function () {
-    ContentRepositoryActions.launch(this.controlRepositoryLocation, this.contentRepositoryPath);
+    ContentRepositoryActions.launch(this.state.controlRepositoryLocation,
+      this.state.contentRepositoryPath, this.state.preparer);
 
     this.transitionTo("repositoryList");
   },
@@ -33,14 +46,22 @@ var EditContentRepository = React.createClass({
           <div className="repository-path">
             <h3>Repository Path</h3>
             <p className="explanation">Filesystem path to the content repository.</p>
-            <input id="input-repository-path" type="text" className="line" placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
+            <input id="input-repository-path" type="text" className="line" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
           </div>
           <div className="control-repository">
             <h3>Control Repository Location</h3>
             <p className="explanation">
               Location of the control repository. May be either a git URL or a local filesystem path.
             </p>
-            <input id="control-repository" type="text" className="line" placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
+            <input id="control-repository" type="text" className="line" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
+          </div>
+          <div className="preparer">
+            <h3>Preparer</h3>
+            <p className="explanation">Preparer to use to prepare the content.</p>
+            <select id="preparer" value={this.state.preparer} onChange={this.handlePreparerChange}>
+              <option value="sphinx">Sphinx</option>
+              <option value="jekyll">Jekyll</option>
+            </select>
           </div>
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
