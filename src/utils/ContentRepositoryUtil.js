@@ -1,8 +1,18 @@
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import async from 'async';
+import _ from 'underscore';
 
 import DockerUtil from './DockerUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
+
+function normalize(contentID) {
+  if (contentID.endsWith("/")) {
+    return contentID;
+  }
+  return contentID + "/";
+}
 
 export class ContentRepository {
 
@@ -20,6 +30,77 @@ export class ContentRepository {
     this.contentContainer = null;
     this.presenterContainer = null;
     this.preparerContainer = null;
+
+    // Parse the _deconst.json file to determine the content ID base.
+    try {
+      let deconstJSON = JSON.parse(
+        fs.readFileSync(path.join(this.contentRepositoryPath, '_deconst.json'))
+      );
+
+      this.contentIDBase = normalize(deconstJSON.contentIDBase);
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (! this.contentIDBase) {
+      this.contentIDBase = 'https://content-id-base/';
+    }
+
+    let configRoot = path.join(this.controlRepositoryLocation, 'config');
+
+    // Parse the content map from the control repository. Determine:
+    // * The first site that contains the content ID.
+    // * The subpath that the content ID is mapped to.
+    try {
+      let contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'content.json')));
+
+      Object.keys(contentMap).forEach((site) => {
+        let siteMap = contentMap[site].content || {};
+        let prefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
+
+        if (prefix !== undefined && ! this.site) {
+          this.site = site;
+          this.prefix = prefix;
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (! this.site) {
+      this.site = 'local.deconst.horse';
+    }
+
+    if (! this.prefix) {
+      this.prefix = '/';
+    }
+
+    // Parse the route map from the control repository. Determine:
+    // * Which templates should be included in the template routes
+    try {
+      let routes = JSON.parse(fs.readFileSync(path.join(configRoot, 'routes.json')))[this.site].routes;
+      let results = {};
+
+      Object.keys(routes).forEach((prefix) => {
+        let template = routes[prefix];
+        prefix = normalize(prefix);
+
+        // Preserve template routes that are mapped beneath the path that the content ID is.
+        if (prefix.startsWith('^' + this.prefix)) {
+          results['^' + prefix.slice(this.prefix.length)] = template;
+        } else if (prefix.length > 1 && prefix[0] !== '^') {
+          results[prefix] = template;
+        }
+      });
+
+      this.templateRoutes = results;
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (! this.templateRoutes) {
+      this.templateRoutes = {};
+    }
   }
 
   name () {
@@ -62,6 +143,27 @@ export class ContentRepository {
 export default {
 
   launchServicePod (repo) {
+    let contentMap = {};
+    contentMap[repo.site] = {
+      content: { "/": repo.contentIDBase },
+      proxy: { "/__local_asset__/": "http://content:8080/assets/" }
+    };
+
+    console.log(require('util').inspect(contentMap));
+
+    let templateRoutes = {};
+    templateRoutes[repo.site] = {
+      routes: repo.templateRoutes
+    };
+
+    console.log(require('util').inspect(templateRoutes));
+
+    let controlOverrideDir = path.join(os.tmpdir(), 'control-' + repo.id);
+    let mapOverridePath = path.join(controlOverrideDir, 'content.json');
+    let templateOverridePath = path.join(controlOverrideDir, 'routes.json');
+
+    console.log("controlOverrideDir = " + controlOverrideDir);
+
     let contentParams = {
       Env: [
         "NODE_ENV=development",
@@ -78,21 +180,23 @@ export default {
 
     let presenterParams = {
       Volumes: {
-        "/var/control-repo": {}
+        "/var/control-repo": {},
+        "/var/override": {}
       },
       Env: [
         "NODE_ENV=development",
         "CONTROL_REPO_PATH=/var/control-repo",
-        "CONTROL_CONTENT_FILE=/var/content.json",
+        "CONTROL_CONTENT_FILE=/var/override/content.json",
+        "CONTROL_ROUTES_FILE=/var/override/routes.json",
         "CONTENT_SERVICE_URL=http://content:8080/",
         "PRESENTER_LOG_LEVEL=debug",
         "PRESENTER_LOG_COLOR=true",
-        "PRESENTED_URL_DOMAIN=local.deconst.horse",
+        "PRESENTED_URL_DOMAIN=" + repo.site,
       ],
       HostConfig: {
         Binds: [
-          repo.controlRepositoryLocation + ":/var/control-repo:ro",
-          path.resolve(path.join(__dirname, '..', 'static', 'content.json')) + ':/var/content.json:ro'
+          repo.controlRepositoryLocation + ':/var/control-repo:ro',
+          controlOverrideDir + ':/var/override:ro'
         ],
         Links: [ "content-" + repo.id + ":content" ],
         PublishAllPorts: true,
@@ -101,6 +205,16 @@ export default {
     };
 
     async.series([
+      (cb) => {
+        fs.mkdir(controlOverrideDir, (err) => {
+          if (err && err.code !== 'EEXIST') {
+            cb(err);
+          }
+          cb(null);
+        });
+      },
+      (cb) => fs.writeFile(mapOverridePath, JSON.stringify(contentMap), cb),
+      (cb) => fs.writeFile(templateOverridePath, JSON.stringify(templateRoutes), cb),
       (cb) => {
         DockerUtil.run("content-" + repo.id, "quay.io/deconst/content-service", "latest", contentParams, cb);
       },
