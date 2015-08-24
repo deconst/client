@@ -58,7 +58,8 @@
     "request-progress": "^0.3.1",
     "rimraf": "^2.3.2",
     "underscore": "^1.8.3",
-    "validator": "^3.39.0"
+    "validator": "^3.39.0",
+    "watchr": "^2.4.13"
   },
   "devDependencies": {
     "babel": "^5.1.10",
