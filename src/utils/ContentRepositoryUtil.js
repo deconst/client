@@ -83,13 +83,17 @@ export default {
       Env: [
         "NODE_ENV=development",
         "CONTROL_REPO_PATH=/var/control-repo",
+        "CONTROL_CONTENT_FILE=/var/content.json",
         "CONTENT_SERVICE_URL=http://content:8080/",
         "PRESENTER_LOG_LEVEL=debug",
         "PRESENTER_LOG_COLOR=true",
-        "PRESENTED_URL_DOMAIN=developer.rackspace.com",
+        "PRESENTED_URL_DOMAIN=local.deconst.horse",
       ],
       HostConfig: {
-        Binds: [ repo.controlRepositoryLocation + ":/var/control-repo:ro" ],
+        Binds: [
+          repo.controlRepositoryLocation + ":/var/control-repo:ro",
+          path.resolve(path.join(__dirname, '..', 'static', 'content.json')) + ':/var/content.json:ro'
+        ],
         Links: [ "content-" + repo.id + ":content" ],
         PublishAllPorts: true,
         ReadonlyRootfs: true

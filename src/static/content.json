@@ -1,0 +1,10 @@
+{
+  "local.deconst.horse": {
+    "content": {
+      "/": "https://content-id-root/"
+    },
+    "proxy": {
+      "/__local_asset__/": "http://content-service:8080/assets/"
+    }
+  }
+}
