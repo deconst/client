@@ -23,6 +23,8 @@ class ContentRepositoryStore {
     r.state = "ready";
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
+
+    DockerUtil.launchPreparer(r);
   }
 
   onPrepare({repo}) {
