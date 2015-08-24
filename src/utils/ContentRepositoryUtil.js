@@ -1,5 +1,6 @@
 import path from 'path';
 import DockerUtil from './DockerUtil';
+import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
 export class ContentRepository {
 
@@ -52,6 +53,90 @@ export class ContentRepository {
   reportError(message) {
     this.state = "error";
     this.error = message;
+  }
+
+};
+
+export default {
+
+  launchServicePod (repo) {
+    let contentParams = {
+      Env: [
+        "NODE_ENV=development",
+        "STORAGE=memory",
+        "ADMIN_APIKEY=supersecret",
+        "CONTENT_LOG_LEVEL=debug",
+        "CONTENT_LOG_COLOR=true"
+      ],
+      HostConfig: {
+        PublishAllPorts: true,
+        ReadonlyRootfs: true
+      }
+    };
+
+    let presenterParams = {
+      Volumes: {
+        "/var/control-repo": {}
+      },
+      Env: [
+        "NODE_ENV=development",
+        "CONTROL_REPO_PATH=/var/control-repo",
+        "CONTENT_SERVICE_URL=http://content:8080/",
+        "PRESENTER_LOG_LEVEL=debug",
+        "PRESENTER_LOG_COLOR=true",
+        "PRESENTED_URL_DOMAIN=developer.rackspace.com",
+      ],
+      HostConfig: {
+        Binds: [ repo.controlRepositoryLocation + ":/var/control-repo:ro" ],
+        Links: [ "content-" + repo.id + ":content" ],
+        PublishAllPorts: true,
+        ReadonlyRootfs: true
+      }
+    };
+
+    async.series([
+      (cb) => {
+        DockerUtil.run("content-" + repo.id, "quay.io/deconst/content-service", "latest", contentParams, cb);
+      },
+      (cb) => {
+        DockerUtil.run("presenter-" + repo.id, "quay.io/deconst/presenter", "latest", presenterParams, cb);
+      }
+    ], (error, containers) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+
+      let [contentContainer, presenterContainer] = containers;
+
+      ContentRepositoryActions.podLaunched({repo, contentContainer, presenterContainer});
+    });
+  },
+
+  launchPreparer (repo) {
+    let params = {
+      Volumes: {
+        "/usr/control-repo": {}
+      },
+      Env: [
+        "CONTENT_STORE_URL=" + repo.contentURL(),
+        "CONTENT_STORE_APIKEY=supersecret",
+        "TRAVIS_PULL_REQUEST=false"
+      ],
+      HostConfig: {
+        Binds: [repo.contentRepositoryPath + ":/usr/control-repo"],
+        ReadonlyRootfs: true
+      }
+    };
+
+    DockerUtil.run("preparer-" + repo.id, "quay.io/deconst/preparer-" + repo.preparer, "latest", params, (error, container) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+
+      ContentRepositoryActions.preparerLaunched({repo, container});
+    })
   }
 
 };
