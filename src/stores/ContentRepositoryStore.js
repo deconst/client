@@ -1,7 +1,7 @@
 import path from 'path';
 import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
-import DockerUtil from '../utils/DockerUtil';
+import ContentRepositoryUtil from '../utils/ContentRepositoryUtil';
 
 class ContentRepositoryStore {
 
@@ -24,7 +24,7 @@ class ContentRepositoryStore {
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    DockerUtil.launchPreparer(r);
+    ContentRepositoryUtil.launchPreparer(r);
   }
 
   onPrepare({repo}) {
