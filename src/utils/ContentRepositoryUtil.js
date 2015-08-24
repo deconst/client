@@ -1,4 +1,6 @@
 import path from 'path';
+import async from 'async';
+
 import DockerUtil from './DockerUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
