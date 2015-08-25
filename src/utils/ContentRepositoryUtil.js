@@ -2,6 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import async from 'async';
+import mkdirp from 'mkdirp';
+import osenv from 'osenv';
 import _ from 'underscore';
 
 import DockerUtil from './DockerUtil';
@@ -149,16 +151,12 @@ export default {
       proxy: { "/__local_asset__/": "http://content:8080/assets/" }
     };
 
-    console.log(require('util').inspect(contentMap));
-
     let templateRoutes = {};
     templateRoutes[repo.site] = {
       routes: repo.templateRoutes
     };
 
-    console.log(require('util').inspect(templateRoutes));
-
-    let controlOverrideDir = path.join(os.tmpdir(), 'control-' + repo.id);
+    let controlOverrideDir = path.join(osenv.home(), '.deconst', 'control-' + repo.id);
     let mapOverridePath = path.join(controlOverrideDir, 'content.json');
     let templateOverridePath = path.join(controlOverrideDir, 'routes.json');
 
@@ -205,14 +203,7 @@ export default {
     };
 
     async.series([
-      (cb) => {
-        fs.mkdir(controlOverrideDir, (err) => {
-          if (err && err.code !== 'EEXIST') {
-            cb(err);
-          }
-          cb(null);
-        });
-      },
+      (cb) => mkdirp(controlOverrideDir, cb),
       (cb) => fs.writeFile(mapOverridePath, JSON.stringify(contentMap), cb),
       (cb) => fs.writeFile(templateOverridePath, JSON.stringify(templateRoutes), cb),
       (cb) => {
