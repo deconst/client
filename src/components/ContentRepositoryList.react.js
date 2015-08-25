@@ -24,23 +24,39 @@ var ContentRepositoryList = React.createClass({
 
   render: function () {
     let orderedRepos = _.sortBy(_.values(this.state.repositories), r => r.id);
+    let body;
 
-    let cards = orderedRepos.map(repo => {
-      return (
-        <li key={repo.id}>
-          <ContentRepositoryCard repository={repo} />
-        </li>
-      );
-    });
+    if (orderedRepos.length > 0) {
+      let cards = orderedRepos.map(repo => {
+        return (
+          <li key={repo.id}>
+            <ContentRepositoryCard repository={repo} />
+          </li>
+        );
+      });
+
+      body = (
+        <ul className="content-repositories">
+          {cards}
+        </ul>
+      )
+    } else {
+      body = (
+        <div className="empty">
+          <h2>Hi!</h2>
+          <p className="explanation">
+            What would you like me to render for you today? Add a content repository to start
+            previewing your writing.
+          </p>
+        </div>
+      )
+    }
 
     return (
       <div className="content-repository-list">
         <Header />
         <div className="container">
-          <h1>Content Repositories</h1>
-          <ul className="content-repositories">
-            {cards}
-          </ul>
+          {body}
           <div className="actions">
             <Router.Link to="editRepository" className="btn btn-primary">New</Router.Link>
           </div>
