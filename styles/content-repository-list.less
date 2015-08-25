@@ -11,40 +11,59 @@
 }
 
 .content-repository-card {
-  h2 {
-    font-size: 20px;
-    color: #888;
-    border-bottom: solid 1px #888;
+  padding: 5px 10px;
+
+  &:hover {
+    background-color: #eee;
   }
 
-  .details {
-    .content-path {
-      font-family: monospace;
+  .headline {
+    font-size: 15px;
+
+    a {
+      cursor: pointer;
     }
 
-    a.submit {
+    a.preview {
+      text-decoration: underline;
+    }
+
+    .preview {
+      display: inline-block;
       margin-right: 10px;
+      font-weight: bold;
+      font-size: 17px;
     }
 
-    .content-preview {
-      .state {
-        font-weight: bold;
-      }
+    .state {
+      display: inline-block;
+      font-style: italic;
+    }
 
-      .preview {
-        font-size: 17px;
-        float: right;
-        cursor: pointer;
+    ul.controls {
+      float: right;
+
+      li {
+        display: inline;
+        margin-right: 5px;
+
+        span {
+          color: #ccc;
+        }
       }
     }
   }
 
-  .controls {
-    clear: both;
+  .detail {
+    margin: 10px 0 5px 0;
+    padding: 5px 10px;
 
-    li {
-      display: inline;
-      margin-right: 5px;
+    &.error {
+      border: solid 2px #900;
+      border-radius: 5px;
+      background-color: #fee;
+      font-family: monospace;
+      color: #900;
     }
   }
 }
