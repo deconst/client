@@ -46,7 +46,6 @@ export default {
       }
 
       async.map(containers, (container, cb) => {
-        console.log(require('util').inspect(container));
         let c = this.client.getContainer(container.Id);
 
         if (container.Status.startsWith('Up')) {

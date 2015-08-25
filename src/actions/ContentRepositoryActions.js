@@ -11,8 +11,13 @@ class ContentRepositoryActions {
     ContentRepositoryUtil.launchServicePod(repo);
   }
 
-  prepare (repo) {
-    ContentRepositoryUtil.launchPreparer(repo);
+  prepareContent (repo) {
+    ContentRepositoryUtil.launchContentPreparer(repo);
+    this.dispatch({repo});
+  }
+
+  prepareControl (repo) {
+    ContentRepositoryUtil.launchControlPreparer(repo);
     this.dispatch({repo});
   }
 
@@ -20,7 +25,11 @@ class ContentRepositoryActions {
     this.dispatch({repo, contentContainer, presenterContainer});
   }
 
-  preparerLaunched ({repo, container}) {
+  contentPreparerLaunched ({repo, container}) {
+    this.dispatch({repo, container});
+  }
+
+  controlPreparerLaunched ({repo, container}) {
     this.dispatch({repo, container});
   }
 

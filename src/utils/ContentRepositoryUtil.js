@@ -31,7 +31,8 @@ export class ContentRepository {
 
     this.contentContainer = null;
     this.presenterContainer = null;
-    this.preparerContainer = null;
+    this.contentPreparerContainer = null;
+    this.controlPreparerContainer = null;
 
     // Parse the _deconst.json file to determine the content ID base.
     try {
@@ -135,6 +136,13 @@ export class ContentRepository {
     return hasContentContainer && isReady;
   }
 
+  isPreparing() {
+    let isPreparingContent = !! this.contentPreparerContainer;
+    let isPreparingControl = !! this.controlPreparerContainer;
+
+    return isPreparingContent || isPreparingControl;
+  }
+
   reportError(message) {
     this.state = "error";
     this.error = message;
@@ -223,7 +231,7 @@ export default {
     });
   },
 
-  launchPreparer (repo) {
+  launchContentPreparer (repo) {
     let params = {
       Volumes: {
         "/usr/control-repo": {}
@@ -239,13 +247,39 @@ export default {
       }
     };
 
-    DockerUtil.run("preparer-" + repo.id, "quay.io/deconst/preparer-" + repo.preparer, "latest", params, (error, container) => {
+    DockerUtil.run("preparer-content-" + repo.id, "quay.io/deconst/preparer-" + repo.preparer, "latest", params, (error, container) => {
       if (error) {
         ContentRepositoryActions.error({repo, error});
         return;
       }
 
-      ContentRepositoryActions.preparerLaunched({repo, container});
+      ContentRepositoryActions.contentPreparerLaunched({repo, container});
+    })
+  },
+
+  launchControlPreparer (repo) {
+    let params = {
+      Volumes: {
+        "/var/control-repo": {}
+      },
+      Env: [
+        "CONTENT_STORE_URL=" + repo.contentURL(),
+        "CONTENT_STORE_APIKEY=supersecret",
+        "TRAVIS_PULL_REQUEST=false"
+      ],
+      HostConfig: {
+        Binds: [repo.controlRepositoryLocation + ":/var/control-repo"],
+        ReadonlyRootfs: true
+      }
+    };
+
+    DockerUtil.run("preparer-control-" + repo.id, "quay.io/deconst/preparer-asset", "latest", params, (error, container) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+
+      ContentRepositoryActions.controlPreparerLaunched({repo, container});
     })
   }
 
