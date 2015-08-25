@@ -48,7 +48,7 @@ var ContentRepositoryCard = React.createClass({
 
     if (repo.error) {
       detailElement = (
-        <p className="detail">{repo.error}</p>
+        <p className="detail error">{repo.error.toString()}</p>
       );
     }
 
