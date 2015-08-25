@@ -12,28 +12,58 @@ var ContentRepositoryCard = React.createClass({
     ContentRepositoryActions.prepareControl(this.props.repository);
   },
 
+  handleEdit: function () {
+    //
+  },
+
+  handleRemove: function() {
+    //
+  },
+
   render: function () {
     let repo = this.props.repository;
-    let disableSubmit = ! repo.canSubmit();
+    let nameElement, detailElement, submitElement;
+
+    if (repo.canPreview()) {
+      // Render the name as a link.
+      nameElement = (
+        <a className="preview" onClick={this.handlePreview}>{repo.name()}</a>
+      );
+    } else {
+      // Use a span instead.
+      nameElement = (
+        <span className="preview">{repo.name()}</span>
+      );
+    }
+
+    if (repo.canSubmit()) {
+      submitElement = (
+        <a classNames="btn btn-link" onClick={this.handleSubmit}>submit</a>
+      );
+    } else {
+      submitElement = (
+        <span>submit</span>
+      );
+    }
+
+    if (repo.error) {
+      detailElement = (
+        <p className="detail">{repo.error}</p>
+      );
+    }
 
     return (
       <div className="content-repository-card">
-        <h2>{repo.name()}</h2>
-        <div className="details">
-          <p className="content-path">{repo.contentRepositoryPath}</p>
-          <p className="content-preview">
-            <a className="btn btn-info btn-sm submit" onClick={this.handleSubmit} disabled={disableSubmit}>submit</a>
-            <span className="state">{repo.state}</span>
-            <a className="preview" onClick={this.handlePreview}>{repo.publicURL()}</a>
-          </p>
-          <p className="error">
-            {repo.error}
-          </p>
+        <div className="headline">
+          {nameElement}
+          <span className="state">{repo.state}</span>
+          <ul className="controls">
+            <li>{submitElement}</li>
+            <li><a classNames="btn btn-link" onClick={this.handleEdit}>edit</a></li>
+            <li><a classNames="btn btn-link" onClick={this.handleRemove}>remove</a></li>
+          </ul>
         </div>
-        <ul className="controls">
-          <li><a href="#">edit</a></li>
-          <li><a href="#">remove</a></li>
-        </ul>
+        {detailElement}
       </div>
     )
   }

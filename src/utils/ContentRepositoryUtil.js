@@ -118,9 +118,15 @@ export class ContentRepository {
 
   canSubmit() {
     let hasContentContainer = !! this.contentContainer;
-    let isReady = this.state === "ready";
+    let isReady = this.state === "ready" || this.state === "preparing";
 
     return hasContentContainer && isReady;
+  }
+
+  canPreview() {
+    let hasPresenterContainer = !! this.presenterContainer;
+
+    return hasPresenterContainer;
   }
 
   isPreparing() {
