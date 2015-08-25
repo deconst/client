@@ -160,8 +160,6 @@ export default {
     let mapOverridePath = path.join(controlOverrideDir, 'content.json');
     let templateOverridePath = path.join(controlOverrideDir, 'routes.json');
 
-    console.log("controlOverrideDir = " + controlOverrideDir);
-
     let contentParams = {
       Env: [
         "NODE_ENV=development",
@@ -212,13 +210,14 @@ export default {
       (cb) => {
         DockerUtil.run("presenter-" + repo.id, "quay.io/deconst/presenter", "latest", presenterParams, cb);
       }
-    ], (error, containers) => {
+    ], (error, results) => {
       if (error) {
         ContentRepositoryActions.error({repo, error});
         return;
       }
 
-      let [contentContainer, presenterContainer] = containers;
+      let contentContainer = results[results.length - 2];
+      let presenterContainer = results[results.length - 1];
 
       ContentRepositoryActions.podLaunched({repo, contentContainer, presenterContainer});
     });
