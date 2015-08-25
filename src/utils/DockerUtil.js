@@ -39,6 +39,25 @@ export default {
     this.listen();
   },
 
+  cleanAllContainers (callback) {
+    this.client.listContainers({all: true}, (err, containers) => {
+      if (err) {
+        return callback(err);
+      }
+
+      async.map(containers, (container, cb) => {
+        console.log(require('util').inspect(container));
+        let c = this.client.getContainer(container.Id);
+
+        if (container.Status.startsWith('Up')) {
+          async.series([c.kill.bind(c), c.remove.bind(c)], cb);
+        } else {
+          c.remove(cb);
+        }
+      }, callback);
+    });
+  },
+
   startContainer (name, containerData, callback) {
     let startopts = {
       Binds: containerData.Binds || []
