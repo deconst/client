@@ -4,6 +4,7 @@ import path from 'path';
 import async from 'async';
 import mkdirp from 'mkdirp';
 import osenv from 'osenv';
+import urlJoin from 'url-join';
 import _ from 'underscore';
 
 import DockerUtil from './DockerUtil';
@@ -81,22 +82,8 @@ export class ContentRepository {
     // Parse the route map from the control repository. Determine:
     // * Which templates should be included in the template routes
     try {
-      let routes = JSON.parse(fs.readFileSync(path.join(configRoot, 'routes.json')))[this.site].routes;
-      let results = {};
-
-      Object.keys(routes).forEach((prefix) => {
-        let template = routes[prefix];
-        prefix = normalize(prefix);
-
-        // Preserve template routes that are mapped beneath the path that the content ID is.
-        if (prefix.startsWith('^' + this.prefix)) {
-          results['^' + prefix.slice(this.prefix.length)] = template;
-        } else if (prefix.length > 1 && prefix[0] !== '^') {
-          results[prefix] = template;
-        }
-      });
-
-      this.templateRoutes = results;
+      let routesDoc = JSON.parse(fs.readFileSync(path.join(configRoot, 'routes.json')));
+      this.templateRoutes = routesDoc[this.site].routes;
     } catch (err) {
       console.error(err);
     }
@@ -110,7 +97,7 @@ export class ContentRepository {
     return path.basename(this.contentRepositoryPath);
   }
 
-  _containerURL(container) {
+  _containerURL(container, ...rest) {
     if (!container) {
       return "";
     }
@@ -118,11 +105,11 @@ export class ContentRepository {
     let host = DockerUtil.host;
     let port = container.NetworkSettings.Ports['8080/tcp'][0].HostPort;
 
-    return "http://" + host + ":" + port + "/";
+    return urlJoin("http://" + host + ":" + port + "/", ...rest);
   }
 
   publicURL() {
-    return this._containerURL(this.presenterContainer);
+    return this._containerURL(this.presenterContainer, this.prefix);
   }
 
   contentURL() {
@@ -154,15 +141,13 @@ export default {
 
   launchServicePod (repo) {
     let contentMap = {};
-    contentMap[repo.site] = {
-      content: { "/": repo.contentIDBase },
-      proxy: { "/__local_asset__/": "http://content:8080/assets/" }
-    };
+    contentMap[repo.site] = { content: {}, proxy: {} };
+    contentMap[repo.site].content[repo.prefix] = repo.contentIDBase;
+    contentMap[repo.site].proxy["/__local_asset__/"] = "http://content:8080/assets/";
 
     let templateRoutes = {};
-    templateRoutes[repo.site] = {
-      routes: repo.templateRoutes
-    };
+    templateRoutes[repo.site] = {};
+    templateRoutes[repo.site].routes = repo.templateRoutes;
 
     let controlOverrideDir = path.join(osenv.home(), '.deconst', 'control-' + repo.id);
     let mapOverridePath = path.join(controlOverrideDir, 'content.json');
