@@ -1,6 +1,6 @@
 import alt from '../alt';
 import DockerUtil from '../utils/DockerUtil';
-import {ContentRepository} from '../utils/ContentRepositoryUtil';
+import ContentRepositoryUtil, {ContentRepository} from '../utils/ContentRepositoryUtil';
 
 class ContentRepositoryActions {
 
@@ -8,11 +8,16 @@ class ContentRepositoryActions {
     let repo = new ContentRepository(controlRepositoryLocation, contentRepositoryPath, preparer);
     this.dispatch({repo});
 
-    DockerUtil.launchServicePod(repo);
+    ContentRepositoryUtil.launchServicePod(repo);
   }
 
-  prepare (repo) {
-    DockerUtil.launchPreparer(repo);
+  prepareContent (repo) {
+    ContentRepositoryUtil.launchContentPreparer(repo);
+    this.dispatch({repo});
+  }
+
+  prepareControl (repo) {
+    ContentRepositoryUtil.launchControlPreparer(repo);
     this.dispatch({repo});
   }
 
@@ -20,7 +25,11 @@ class ContentRepositoryActions {
     this.dispatch({repo, contentContainer, presenterContainer});
   }
 
-  preparerLaunched ({repo, container}) {
+  contentPreparerLaunched ({repo, container}) {
+    this.dispatch({repo, container});
+  }
+
+  controlPreparerLaunched ({repo, container}) {
     this.dispatch({repo, container});
   }
 

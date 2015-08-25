@@ -1,7 +1,7 @@
 import path from 'path';
 import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
-import DockerUtil from '../utils/DockerUtil';
+import ContentRepositoryUtil from '../utils/ContentRepositoryUtil';
 
 class ContentRepositoryStore {
 
@@ -20,40 +20,69 @@ class ContentRepositoryStore {
       return;
     }
 
-    r.state = "ready";
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    DockerUtil.launchPreparer(r);
+    ContentRepositoryUtil.launchContentPreparer(r);
+    ContentRepositoryUtil.launchControlPreparer(r);
   }
 
-  onPrepare({repo}) {
+  onPrepareContent({repo}) {
     let r = this.repositories[repo.id];
     if (!r) {
       return;
     }
 
-    r.state = "launching preparer";
+    r.state = "preprepare";
   }
 
-  onPreparerLaunched({repo, container}) {
+  onPrepareControl({repo}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
+      return;
+    }
+
+    r.state = "preprepare";
+  }
+
+  onContentPreparerLaunched({repo, container}) {
     let r = this.repositories[repo.id];
     if (!r) {
       return;
     }
 
     r.state = "preparing";
-    r.preparerContainer = container;
+    r.contentPreparerContainer = container;
+  }
+
+  onControlPreparerLaunched({repo, container}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
+      return;
+    }
+
+    r.state = "preparing";
+    r.controlPreparerContainer = container;
   }
 
   onContainerCompleted({container}) {
     // Identify which repository this container belongs to, if any.
     for(let id in this.repositories) {
       let r = this.repositories[id];
-      if (r.preparerContainer && r.preparerContainer.Id === container.Id) {
+      if (r.contentPreparerContainer && r.contentPreparerContainer.Id === container.Id) {
         // This repository's preparer has completed.
-        r.state = "ready";
-        r.preparerContainer = null;
+        r.contentPreparerContainer = null;
+        if (!r.isPreparing()) {
+          r.state = "ready";
+        }
+      }
+
+      if (r.controlPreparerContainer && r.controlPreparerContainer.Id === container.Id) {
+        // The control preparer has completed.
+        r.controlPreparerContainer = null;
+        if (!r.isPreparing()) {
+          r.state = "ready";
+        }
       }
 
       if (r.contentContainer && r.contentContainer.Id === container.Id) {

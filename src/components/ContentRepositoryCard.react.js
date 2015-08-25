@@ -8,7 +8,8 @@ var ContentRepositoryCard = React.createClass({
   },
 
   handleSubmit: function () {
-    ContentRepositoryActions.prepare(this.props.repository);
+    ContentRepositoryActions.prepareContent(this.props.repository);
+    ContentRepositoryActions.prepareControl(this.props.repository);
   },
 
   render: function () {

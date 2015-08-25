@@ -210,6 +210,7 @@ var SetupStore = assign(Object.create(EventEmitter.prototype), {
         }
         docker.setup(ip, machine.name());
         yield docker.waitForConnection();
+        yield Promise.fromNode((cb) => docker.cleanAllContainers(cb));
         break;
       } catch (err) {
         err.message = util.removeSensitiveData(err.message);
