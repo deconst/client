@@ -86,7 +86,7 @@ app.on('ready', function () {
   }
 
   mainWindow.webContents.on('did-finish-load', function() {
-    mainWindow.setTitle('Kite-Shell');
+    mainWindow.setTitle('Deconst');
     mainWindow.show();
     mainWindow.focus();
 
