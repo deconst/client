@@ -39,24 +39,6 @@ export default {
     this.listen();
   },
 
-  cleanAllContainers (callback) {
-    this.client.listContainers({all: true}, (err, containers) => {
-      if (err) {
-        return callback(err);
-      }
-
-      async.map(containers, (container, cb) => {
-        let c = this.client.getContainer(container.Id);
-
-        if (container.Status.startsWith('Up')) {
-          async.series([c.kill.bind(c), c.remove.bind(c)], cb);
-        } else {
-          c.remove(cb);
-        }
-      }, callback);
-    });
-  },
-
   startContainer (name, containerData, callback) {
     let startopts = {
       Binds: containerData.Binds || []
@@ -159,6 +141,36 @@ export default {
     () => {
       // Oops blocked
     });
+  },
+
+  cleanAllContainers (callback) {
+    this.client.listContainers({all: true}, (err, containers) => {
+      if (err) {
+        return callback(err);
+      }
+
+      async.map(containers, (container, cb) => {
+        let c = this.client.getContainer(container.Id);
+
+        if (container.Status.startsWith('Up')) {
+          async.series([c.kill.bind(c), c.remove.bind(c)], cb);
+        } else {
+          c.remove(cb);
+        }
+      }, callback);
+    });
+  },
+
+  cleanContainers (ids, callback) {
+    async.map(ids, (id, cb) => {
+      let c = this.client.getContainer(id);
+
+      if (c.State.Running) {
+        async.series([c.kill.bind(c), c.remove.bind(c)], cb);
+      } else {
+        c.remove(cb);
+      }
+    }, callback)
   },
 
   listen () {
