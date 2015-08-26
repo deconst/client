@@ -21,10 +21,8 @@ var lastID = 0;
 
 export class ContentRepository {
 
-  constructor (controlRepositoryLocation, contentRepositoryPath, preparer) {
-    let id = lastID++;
-
-    this.id = id;
+  constructor (controlRepositoryLocation, contentRepositoryPath, preparer, id = null) {
+    this.id = id || lastID++;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
@@ -158,9 +156,27 @@ export class ContentRepository {
     return ids;
   }
 
+  serialize() {
+    return {
+      id: this.id,
+      controlRepositoryLocation: this.controlRepositoryLocation,
+      contentRepositoryPath: this.contentRepositoryPath,
+      preparer: this.preparer
+    };
+  }
+
   reportError(message) {
     this.state = "error";
     this.error = message;
+  }
+
+  static deserialize({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
+    return new ContentRepository(
+      controlRepositoryLocation,
+      contentRepositoryPath,
+      preparer,
+      id
+    );
   }
 
 };
@@ -312,6 +328,19 @@ export default {
       if (error) {
         ContentRepositoryActions.error({repo, error});
         return;
+      }
+    });
+  },
+
+  saveRepositories (repos) {
+    let orderedRepos = _.sortBy(_.values(repos), r => r.id);
+    let serializedRepos = _.map(orderedRepos, r => r.serialize());
+
+    let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
+
+    fs.writeFile(repositoriesPath, JSON.stringify(serializedRepos), (error) => {
+      if (error) {
+        console.error(error);
       }
     });
   }
