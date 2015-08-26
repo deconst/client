@@ -48,11 +48,9 @@ app.on('ready', function () {
   var mainWindow = new BrowserWindow({
     width: size.width || 800,
     height: size.height || 600,
-    'min-width': os.platform() === 'win32' ? 400 : 700,
-    'min-height': os.platform() === 'win32' ? 260 : 500,
-    'standard-window': false,
+    'min-width': os.platform() === 'win32' ? 400 : 600,
+    'min-height': os.platform() === 'win32' ? 260 : 100,
     resizable: true,
-    frame: false,
     show: false
   });
 
