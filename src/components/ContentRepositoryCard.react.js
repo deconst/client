@@ -1,4 +1,5 @@
 import React from 'react/addons';
+import Router from 'react-router';
 import shell from 'shell';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
@@ -59,7 +60,7 @@ var ContentRepositoryCard = React.createClass({
           <span className="state">{repo.state}</span>
           <ul className="controls">
             <li>{submitElement}</li>
-            <li><a classNames="btn btn-link" onClick={this.handleEdit}>edit</a></li>
+            <li><Router.Link to="editRepository" params={{id: repo.id}} className="btn btn-link">edit</Router.Link></li>
             <li><a classNames="btn btn-link" onClick={this.handleRemove}>remove</a></li>
           </ul>
         </div>

@@ -1,17 +1,35 @@
 import React from 'react/addons';
 import Router from 'react-router';
 import Header from './Header.react';
+import {ContentRepository} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
+import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
 
   getInitialState: function () {
     return {
+      isNew: true,
       contentRepositoryPath: "/Users/ashl6947/writing/docs-quickstart",
       controlRepositoryLocation: "/Users/ashl6947/writing/nexus-control",
       preparer: "sphinx"
     };
+  },
+
+  componentDidMount: function () {
+    let id = this.props.params.id;
+
+    if (id !== undefined) {
+      let repo = ContentRepositoryStore.getState().repositories[id];
+
+      this.setState({
+        isNew: false,
+        contentRepositoryPath: repo.contentRepositoryPath,
+        controlRepositoryLocation: repo.controlRepositoryLocation,
+        preparer: repo.preparer
+      });
+    }
   },
 
   handleRepositoryPathChange: function (e) {
@@ -30,9 +48,14 @@ var EditContentRepository = React.createClass({
     this.transitionTo("repositoryList");
   },
 
-  handleCreate: function () {
-    ContentRepositoryActions.launch(this.state.controlRepositoryLocation,
-      this.state.contentRepositoryPath, this.state.preparer);
+  // "Create" or "Save"
+  handleCommit: function () {
+    if (this.state.isNew) {
+      ContentRepositoryActions.launch(this.state.controlRepositoryLocation,
+        this.state.contentRepositoryPath, this.state.preparer);
+    } else {
+      console.log(`Edit to ${this.props.params.id} committed`);
+    }
 
     this.transitionTo("repositoryList");
   },
@@ -65,7 +88,7 @@ var EditContentRepository = React.createClass({
           </div>
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
-            <button className="btn btn-large btn-primary" onClick={this.handleCreate}>Create</button>
+            <button className="btn btn-large btn-primary" onClick={this.handleCommit}>Create</button>
           </div>
         </div>
       </div>

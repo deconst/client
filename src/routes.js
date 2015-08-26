@@ -23,7 +23,8 @@ var routes = (
   <Route name="app" path="/" handler={App}>
     <Route name="about" path="/about" handler={About}/>
     <Route name="repositoryList" path="/repository-list" handler={ContentRepositoryList}/>
-    <Route name="editRepository" path="/edit-repository" handler={EditContentRepository}/>
+    <Route name="newRepository" path="/new-repository" handler={EditContentRepository}/>
+    <Route name="editRepository" path="/edit-repository/:id" handler={EditContentRepository}/>
     <DefaultRoute name="setup" handler={Setup}/>
   </Route>
 );
