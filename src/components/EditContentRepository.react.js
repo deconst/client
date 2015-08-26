@@ -61,34 +61,37 @@ var EditContentRepository = React.createClass({
   },
 
   render: function () {
+    let banner = this.state.isNew ? "Add a Content Repository" : "Edit the Content Repository";
+    let commit = this.state.isNew ? "Create" : "Save";
+
     return (
       <div className="edit-content-repository">
         <Header />
         <div className="container">
-          <h1>New Content Repository</h1>
+          <h1>{banner}</h1>
           <div className="repository-path">
-            <h3>Repository Path</h3>
+            <h3>Content Repository Path</h3>
             <p className="explanation">Filesystem path to the content repository.</p>
-            <input id="input-repository-path" type="text" className="line" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
+            <input type="text" className="line" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
           </div>
           <div className="control-repository">
             <h3>Control Repository Location</h3>
             <p className="explanation">
               Location of the control repository. May be either a git URL or a local filesystem path.
             </p>
-            <input id="control-repository" type="text" className="line" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
+            <input type="text" className="line" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
           </div>
           <div className="preparer">
             <h3>Preparer</h3>
             <p className="explanation">Preparer to use to prepare the content.</p>
-            <select id="preparer" value={this.state.preparer} onChange={this.handlePreparerChange}>
+            <select value={this.state.preparer} onChange={this.handlePreparerChange}>
               <option value="sphinx">Sphinx</option>
               <option value="jekyll">Jekyll</option>
             </select>
           </div>
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
-            <button className="btn btn-large btn-primary" onClick={this.handleCommit}>Create</button>
+            <button className="btn btn-large btn-primary" onClick={this.handleCommit}>{commit}</button>
           </div>
         </div>
       </div>
