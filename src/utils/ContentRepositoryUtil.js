@@ -139,20 +139,20 @@ export class ContentRepository {
   containerIds() {
     let ids = [];
 
-    if (repo.contentContainer) {
-      ids.push(repo.contentContainer.Id);
+    if (this.contentContainer) {
+      ids.push(this.contentContainer.Id);
     }
 
-    if (repo.presenterContainer) {
-      ids.push(repo.presenterContainer.Id);
+    if (this.presenterContainer) {
+      ids.push(this.presenterContainer.Id);
     }
 
-    if (repo.contentPreparerContainer) {
-      ids.push(repo.contentPreparerContainer.Id);
+    if (this.contentPreparerContainer) {
+      ids.push(this.contentPreparerContainer.Id);
     }
 
-    if (repo.controlPreparerContainer) {
-      ids.push(repo.controlPreparerContainer.Id);
+    if (this.controlPreparerContainer) {
+      ids.push(this.controlPreparerContainer.Id);
     }
 
     return ids;
@@ -297,33 +297,23 @@ export default {
   },
 
   relaunchContainers (repo) {
-    let ids = repo.containerIds();
+    DockerUtil.cleanContainers(repo.containerIds(), (error) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
 
-    if (ids.length > 0) {
-      DockerUtil.cleanContainers(ids, (error) => {
-        if (error) {
-          ContentRepositoryActions.error({repo, error});
-          return;
-        }
-
-        this.launchServicePod(repo);
-      })
-    } else {
       this.launchServicePod(repo);
-    }
+    });
   },
 
   cleanContainers (repo) {
-    let ids = repo.containerIds();
-
-    if (ids.length > 0) {
-      DockerUtil.cleanContainers(ids, (error) => {
-        if (error) {
-          ContentRepositoryActions.error({repo, error});
-          return;
-        }
-      });
-    }
+    DockerUtil.cleanContainers(repo.containerIds(), (error) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+    });
   }
 
 };

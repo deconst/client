@@ -15,13 +15,13 @@ class ContentRepositoryStore {
   }
 
   onEdit({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
-    let r = this.repositories[repo.id];
+    let r = this.repositories[id];
     if (!r) {
       return;
     }
     let changed = (controlRepositoryLocation !== r.controlRepositoryLocation);
-    changed = changed && (contentRepositoryPath !== r.contentRepositoryPath);
-    changed = changed && (preparer !== r.preparer);
+    changed = changed || (contentRepositoryPath !== r.contentRepositoryPath);
+    changed = changed || (preparer !== r.preparer);
 
     if (!changed) {
       return;

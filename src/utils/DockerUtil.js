@@ -162,14 +162,24 @@ export default {
   },
 
   cleanContainers (ids, callback) {
+    if (ids.length === 0) {
+      return callback(null);
+    }
+
     async.map(ids, (id, cb) => {
       let c = this.client.getContainer(id);
 
-      if (c.State.Running) {
-        async.series([c.kill.bind(c), c.remove.bind(c)], cb);
-      } else {
-        c.remove(cb);
-      }
+      c.inspect((error, container) => {
+        if (error) {
+          return cb(error);
+        }
+
+        if (container.State && container.State.Running) {
+          async.series([c.kill.bind(c), c.remove.bind(c)], cb);
+        } else {
+          c.remove(cb);
+        }
+      });
     }, callback)
   },
 
