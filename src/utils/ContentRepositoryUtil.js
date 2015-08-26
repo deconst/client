@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import util from 'util';
 import async from 'async';
 import mkdirp from 'mkdirp';
 import osenv from 'osenv';
@@ -18,6 +19,7 @@ function normalize(contentID) {
 }
 
 var lastID = 0;
+let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
 
 export class ContentRepository {
 
@@ -340,13 +342,47 @@ export default {
     let orderedRepos = _.sortBy(_.values(repos), r => r.id);
     let serializedRepos = _.map(orderedRepos, r => r.serialize());
 
-    let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
-
-    fs.writeFile(repositoriesPath, JSON.stringify(serializedRepos), (error) => {
+    fs.writeFile(repositoriesPath, JSON.stringify(serializedRepos), {encoding: 'utf-8'}, (error) => {
       if (error) {
         console.error(error);
       }
     });
+  },
+
+  loadRepositories (callback) {
+    fs.readFile(repositoriesPath, {encoding: 'utf-8'}, (error, data) => {
+      if (error) {
+        if (error.code !== 'ENOENT') {
+          console.error("Unable to open repository file: " + util.inspect(error));
+        }
+
+        return callback(null);
+      }
+
+      try {
+        JSON.parse(data).forEach((repoDoc) => {
+          let wellFormed = (repoDoc.id !== undefined);
+          wellFormed = wellFormed && (repoDoc.controlRepositoryLocation !== undefined);
+          wellFormed = wellFormed && (repoDoc.contentRepositoryPath !== undefined);
+          wellFormed = wellFormed && (repoDoc.preparer !== undefined);
+
+          if (wellFormed) {
+            ContentRepositoryActions.launch(
+              repoDoc.id,
+              repoDoc.controlRepositoryLocation,
+              repoDoc.contentRepositoryPath,
+              repoDoc.preparer
+            );
+          } else {
+            console.log("Malformed repository document: " + util.inspect(repoDoc));
+          }
+        })
+      } catch (e) {
+        console.error("Unable to parse repository file: " + util.inspect(e));
+      }
+
+      callback(null);
+    })
   }
 
 };
