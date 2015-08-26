@@ -35,6 +35,9 @@ export class ContentRepository {
     this.contentPreparerContainer = null;
     this.controlPreparerContainer = null;
 
+    this.contentWatcher = null;
+    this.controlWatcher = null;
+
     if (this.id > lastID) {
       lastID = this.id + 1;
     }
