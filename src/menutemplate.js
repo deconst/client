@@ -14,10 +14,10 @@ import docker from './utils/DockerUtil';
 var MenuTemplate = function () {
   return [
     {
-      label: 'Kite-Shell',
+      label: 'Deconst Client',
       submenu: [
       {
-        label: 'About Kite-Shell',
+        label: 'About Deconst Client',
         click: function () {
           router.get().transitionTo('about');
         }
@@ -35,13 +35,15 @@ var MenuTemplate = function () {
       ]
     },
     {
-      label: 'View',
+      label: "Edit",
       submenu: [
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+' + util.CommandOrCtrl() + '+I',
-          click: function() { remote.getCurrentWindow().toggleDevTools(); }
-        }
+        { label: "Undo", accelerator: util.CommandOrCtrl() + "+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+" + util.CommandOrCtrl() + "+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: util.CommandOrCtrl() + "+X", selector: "cut:" },
+        { label: "Copy", accelerator: util.CommandOrCtrl() + "+C", selector: "copy:" },
+        { label: "Paste", accelerator: util.CommandOrCtrl() + "+V", selector: "paste:" },
+        { label: "Select All", accelerator: util.CommandOrCtrl() + "+A", selector: "selectAll:" }
       ]
     },
     {
@@ -58,6 +60,14 @@ var MenuTemplate = function () {
         click: function () {
           remote.getCurrentWindow().hide();
         }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator: 'Alt+' + util.CommandOrCtrl() + '+I',
+        click: function() { remote.getCurrentWindow().toggleDevTools(); }
       }
       ]
     },
@@ -67,7 +77,7 @@ var MenuTemplate = function () {
         {
           label: 'Report Issue or Suggest Feedback',
           click: function () {
-            shell.openExternal('https://github.com/deconst/client/issues/new');
+            shell.openExternal('https://github.com/deconst/deconst-docs/issues/new');
           }
         }
       ]
