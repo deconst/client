@@ -1,15 +1,15 @@
 {
-  "name": "Kitematic",
-  "version": "0.8.0-rc4",
-  "author": "Kitematic",
-  "description": "Simple Docker Container management for Mac OS X.",
-  "homepage": "https://kitematic.com/",
+  "name": "Deconst-Client",
+  "version": "0.0.1",
+  "author": "Ash Wilson <ash.wilson@rackspace.com>",
+  "description": "Local previews of Deconst-hosted content",
+  "homepage": "http://deconst.horse/",
   "main": "browser.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kitematic/kitematic.git"
+    "url": "git@github.com:deconst/client.git"
   },
-  "bugs": "https://github.com/kitematic/kitematic/issues",
+  "bugs": "https://github.com/deconst/deconst-docs/issues",
   "scripts": {
     "start": "grunt",
     "test": "jest -c jest-unit.json",
@@ -23,8 +23,8 @@
     }
   ],
   "docker-version": "1.8.0-rc2",
-  "docker-machine-version": "0.4.0-rc2",
-  "electron-version": "0.27.2",
+  "docker-machine-version": "0.4.1",
+  "electron-version": "0.30.6",
   "virtualbox-version": "5.0.0",
   "virtualbox-filename": "VirtualBox-5.0.0.pkg",
   "virtualbox-filename-win": "VirtualBox-5.0.0.exe",
