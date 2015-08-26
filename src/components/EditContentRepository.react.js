@@ -8,6 +8,8 @@ import {ContentRepository} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
+var lastControlRepository = null;
+
 var EditContentRepository = React.createClass({
   mixins: [Router.Navigation],
 
@@ -15,7 +17,7 @@ var EditContentRepository = React.createClass({
     return {
       isNew: true,
       contentRepositoryPath: null,
-      controlRepositoryLocation: null,
+      controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx"
     };
   },
@@ -95,6 +97,8 @@ var EditContentRepository = React.createClass({
   },
 
   render: function () {
+    lastControlRepository = this.state.controlRepositoryLocation;
+
     let banner = this.state.isNew ? "Add a Content Repository" : "Edit the Content Repository";
     let commit = this.state.isNew ? "Create" : "Save";
 
