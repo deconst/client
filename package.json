@@ -36,6 +36,7 @@
     "any-promise": "^0.1.0",
     "async": "^0.9.0",
     "bluebird": "^2.9.24",
+    "chokidar": "^1.0.5",
     "classnames": "^1.2.0",
     "coveralls": "^2.11.2",
     "deep-extend": "^0.4.0",
@@ -60,8 +61,7 @@
     "rimraf": "^2.3.2",
     "underscore": "^1.8.3",
     "url-join": "0.0.1",
-    "validator": "^3.39.0",
-    "watchr": "^2.4.13"
+    "validator": "^3.39.0"
   },
   "devDependencies": {
     "babel": "^5.1.10",

@@ -1,4 +1,7 @@
+import fs from 'fs';
 import path from 'path';
+import chokidar from 'chokidar';
+
 import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryUtil from '../utils/ContentRepositoryUtil';
@@ -47,8 +50,37 @@ class ContentRepositoryStore {
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    ContentRepositoryUtil.launchContentPreparer(r);
-    ContentRepositoryUtil.launchControlPreparer(r);
+    let prepareContent = () => ContentRepositoryUtil.launchContentPreparer(r);
+    let prepareControl = () => ContentRepositoryUtil.launchControlPreparer(r);
+
+    prepareContent();
+    prepareControl();
+
+    let installWatcher = (root, callback) => {
+      let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'build'];
+      let gitignorePath = path.join(root, ".gitignore");
+
+      fs.readFile(gitignorePath, {encoding: 'utf-8'}, (error, content) => {
+        if (!error) {
+          content.split(/\n+/).forEach((line) => {
+            if (/\S/.test(line) && ! /^\s*#/.test(line)) {
+              ignored.push(line);
+            }
+          });
+        }
+
+        chokidar.watch(root, {
+          persistent: false,
+          ignored,
+          ignoreInitial: true,
+          atomic: true,
+          cwd: root
+        }).on('add', callback).on('change', callback).on('unlink', callback);
+      });
+    };
+
+    installWatcher(r.contentRepositoryPath, prepareContent);
+    installWatcher(r.controlRepositoryLocation, prepareControl);
   }
 
   onPrepareContent({repo}) {
