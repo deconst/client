@@ -50,14 +50,8 @@ class ContentRepositoryStore {
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    let prepareContent = () => {
-      console.log("Launching content preparer: " + r.id);
-      ContentRepositoryUtil.launchContentPreparer(r);
-    };
-    let prepareControl = () => {
-      console.log("Launching control preparer: " + r.id);
-      ContentRepositoryUtil.launchControlPreparer(r)
-    };
+    let prepareContent = () => ContentRepositoryUtil.launchContentPreparer(r);
+    let prepareControl = () => ContentRepositoryUtil.launchControlPreparer(r);
 
     prepareContent();
     prepareControl();
@@ -85,9 +79,8 @@ class ContentRepositoryStore {
       });
     };
 
-    let dump = (path) => console.log(path);
-    installWatcher(r.contentRepositoryPath, dump);
-    installWatcher(r.controlRepositoryLocation, dump);
+    installWatcher(r.contentRepositoryPath, prepareContent);
+    installWatcher(r.controlRepositoryLocation, prepareControl);
   }
 
   onPrepareContent({repo}) {
