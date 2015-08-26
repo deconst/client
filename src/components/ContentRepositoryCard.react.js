@@ -14,7 +14,7 @@ var ContentRepositoryCard = React.createClass({
   },
 
   handleRemove: function() {
-    //
+    ContentRepositoryActions.remove(this.props.repository);
   },
 
   render: function () {
