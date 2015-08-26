@@ -37,13 +37,39 @@ var MenuTemplate = function () {
     {
       label: "Edit",
       submenu: [
-        { label: "Undo", accelerator: util.CommandOrCtrl() + "+Z", selector: "undo:" },
-        { label: "Redo", accelerator: "Shift+" + util.CommandOrCtrl() + "+Z", selector: "redo:" },
-        { type: "separator" },
-        { label: "Cut", accelerator: util.CommandOrCtrl() + "+X", selector: "cut:" },
-        { label: "Copy", accelerator: util.CommandOrCtrl() + "+C", selector: "copy:" },
-        { label: "Paste", accelerator: util.CommandOrCtrl() + "+V", selector: "paste:" },
-        { label: "Select All", accelerator: util.CommandOrCtrl() + "+A", selector: "selectAll:" }
+        {
+          label: "Undo",
+          accelerator: util.CommandOrCtrl() + "+Z",
+          selector: "undo:"
+        },
+        {
+          label: "Redo",
+          accelerator: "Shift+" + util.CommandOrCtrl() + "+Z",
+          selector: "redo:"
+        },
+        {
+          type: "separator"
+        },
+        {
+          label: "Cut",
+          accelerator: util.CommandOrCtrl() + "+X",
+          selector: "cut:"
+        },
+        {
+          label: "Copy",
+          accelerator: util.CommandOrCtrl() + "+C",
+          selector: "copy:"
+        },
+        {
+          label: "Paste",
+          accelerator: util.CommandOrCtrl() + "+V",
+          selector: "paste:"
+        },
+        {
+          label: "Select All",
+          accelerator: util.CommandOrCtrl() + "+A",
+          selector: "selectAll:"
+        }
       ]
     },
     {
