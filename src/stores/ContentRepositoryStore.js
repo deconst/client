@@ -56,7 +56,7 @@ class ContentRepositoryStore {
     prepareContent();
     prepareControl();
 
-    let installWatcher = (root, callback) => {
+    let installWatcher = (root, fn, callback) => {
       let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'build'];
       let gitignorePath = path.join(root, ".gitignore");
 
@@ -69,18 +69,20 @@ class ContentRepositoryStore {
           });
         }
 
-        chokidar.watch(root, {
+        let watcher = chokidar.watch(root, {
           persistent: false,
           ignored,
           ignoreInitial: true,
           atomic: true,
           cwd: root
-        }).on('add', callback).on('change', callback).on('unlink', callback);
+        }).on('add', fn).on('change', fn).on('unlink', fn);
+
+        callback(null, watcher);
       });
     };
 
-    installWatcher(r.contentRepositoryPath, prepareContent);
-    installWatcher(r.controlRepositoryLocation, prepareControl);
+    installWatcher(r.contentRepositoryPath, prepareContent, (w) => r.contentWatcher = w);
+    installWatcher(r.controlRepositoryLocation, prepareControl, (w) => r.controlWatcher = w);
   }
 
   onPrepareContent({repo}) {
@@ -102,10 +104,19 @@ class ContentRepositoryStore {
   }
 
   onRemove({repo}) {
+    let r = this.repositories[repo.id];
     delete this.repositories[repo.id];
 
-    ContentRepositoryUtil.cleanContainers(repo);
+    ContentRepositoryUtil.cleanContainers(r);
     ContentRepositoryUtil.saveRepositories(this.repositories);
+
+    if (r.contentWatcher) {
+      r.contentWatcher.close();
+    }
+
+    if (r.controlWatcher) {
+      r.controlWatcher.close();
+    }
   }
 
   onContentPreparerLaunched({repo, container}) {
