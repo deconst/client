@@ -17,12 +17,12 @@ function normalize(contentID) {
   return contentID + "/";
 }
 
+var lastID = 0;
+
 export class ContentRepository {
 
   constructor (controlRepositoryLocation, contentRepositoryPath, preparer) {
-    let lastID = parseInt(sessionStorage.getItem('content-repository-id') || '0');
-    let id = lastID + 1;
-    sessionStorage.setItem('content-repository-id', id.toString())
+    let id = lastID++;
 
     this.id = id;
     this.controlRepositoryLocation = controlRepositoryLocation;
