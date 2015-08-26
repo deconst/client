@@ -1,7 +1,6 @@
 import React from 'react/addons';
 import Router from 'react-router';
 import _ from 'underscore';
-import Header from './Header.react';
 import ContentRepositoryCard from './ContentRepositoryCard.react';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -53,13 +52,10 @@ var ContentRepositoryList = React.createClass({
     }
 
     return (
-      <div className="content-repository-list">
-        <Header />
-        <div className="container">
-          {body}
-          <div className="actions">
-            <Router.Link to="newRepository" className="btn btn-primary">New</Router.Link>
-          </div>
+      <div className="content-repository-list container">
+        {body}
+        <div className="actions">
+          <Router.Link to="newRepository" className="btn btn-primary">New</Router.Link>
         </div>
       </div>
     );

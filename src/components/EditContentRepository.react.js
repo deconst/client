@@ -1,6 +1,5 @@
 import React from 'react/addons';
 import Router from 'react-router';
-import Header from './Header.react';
 import {ContentRepository} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
@@ -75,7 +74,6 @@ var EditContentRepository = React.createClass({
 
     return (
       <div className="edit-content-repository">
-        <Header />
         <div className="container">
           <h1>{banner}</h1>
           <div className="repository-path">
