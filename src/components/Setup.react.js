@@ -4,7 +4,6 @@ import React from 'react/addons';
 import Router from 'react-router';
 import SetupStore from '../stores/SetupStore';
 import RetinaImage from 'react-retina-image';
-import Header from './Header.react';
 import Util from '../utils/Util';
 
 var Setup = React.createClass({
@@ -62,7 +61,6 @@ var Setup = React.createClass({
   renderStep: function () {
     return (
       <div className="setup">
-        <Header hideLogin={true}/>
         <div className="setup-content container">
           <div className="desc">
             <div className="content">
@@ -79,7 +77,6 @@ var Setup = React.createClass({
   renderCancelled: function () {
     return (
       <div className="setup">
-        <Header hideLogin={true}/>
         <div className="setup-content container">
           {this.renderProgress()}
           <div className="desc">
@@ -98,7 +95,6 @@ var Setup = React.createClass({
   renderError: function () {
     return (
       <div className="setup">
-        <Header hideLogin={true}/>
         <div className="setup-content container">
           <div className="desc">
             <div className="content">
