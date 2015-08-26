@@ -11,6 +11,10 @@ class ContentRepositoryActions {
     ContentRepositoryUtil.launchServicePod(repo);
   }
 
+  edit (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
+    this.dispatch({id, controlRepositoryLocation, contentRepositoryPath, preparer});
+  }
+
   prepareContent (repo) {
     ContentRepositoryUtil.launchContentPreparer(repo);
     this.dispatch({repo});
@@ -18,6 +22,10 @@ class ContentRepositoryActions {
 
   prepareControl (repo) {
     ContentRepositoryUtil.launchControlPreparer(repo);
+    this.dispatch({repo});
+  }
+
+  remove (repo) {
     this.dispatch({repo});
   }
 

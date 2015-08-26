@@ -136,6 +136,28 @@ export class ContentRepository {
     return isPreparingContent || isPreparingControl;
   }
 
+  containerIds() {
+    let ids = [];
+
+    if (this.contentContainer) {
+      ids.push(this.contentContainer.Id);
+    }
+
+    if (this.presenterContainer) {
+      ids.push(this.presenterContainer.Id);
+    }
+
+    if (this.contentPreparerContainer) {
+      ids.push(this.contentPreparerContainer.Id);
+    }
+
+    if (this.controlPreparerContainer) {
+      ids.push(this.controlPreparerContainer.Id);
+    }
+
+    return ids;
+  }
+
   reportError(message) {
     this.state = "error";
     this.error = message;
@@ -272,6 +294,26 @@ export default {
 
       ContentRepositoryActions.controlPreparerLaunched({repo, container});
     })
+  },
+
+  relaunchContainers (repo) {
+    DockerUtil.cleanContainers(repo.containerIds(), (error) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+
+      this.launchServicePod(repo);
+    });
+  },
+
+  cleanContainers (repo) {
+    DockerUtil.cleanContainers(repo.containerIds(), (error) => {
+      if (error) {
+        ContentRepositoryActions.error({repo, error});
+        return;
+      }
+    });
   }
 
 };

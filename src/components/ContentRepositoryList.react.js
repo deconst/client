@@ -58,7 +58,7 @@ var ContentRepositoryList = React.createClass({
         <div className="container">
           {body}
           <div className="actions">
-            <Router.Link to="editRepository" className="btn btn-primary">New</Router.Link>
+            <Router.Link to="newRepository" className="btn btn-primary">New</Router.Link>
           </div>
         </div>
       </div>

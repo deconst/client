@@ -14,6 +14,28 @@ class ContentRepositoryStore {
     this.repositories[repo.id] = repo;
   }
 
+  onEdit({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
+    let r = this.repositories[id];
+    if (!r) {
+      return;
+    }
+    let changed = (controlRepositoryLocation !== r.controlRepositoryLocation);
+    changed = changed || (contentRepositoryPath !== r.contentRepositoryPath);
+    changed = changed || (preparer !== r.preparer);
+
+    if (!changed) {
+      return;
+    }
+
+    r.controlRepositoryLocation = controlRepositoryLocation;
+    r.contentRepositoryPath = contentRepositoryPath;
+    r.preparer = preparer;
+
+    r.state = "relaunching";
+
+    ContentRepositoryUtil.relaunchContainers(r);
+  }
+
   onPodLaunched({repo, contentContainer, presenterContainer}) {
     let r = this.repositories[repo.id];
     if (!r) {
@@ -43,6 +65,12 @@ class ContentRepositoryStore {
     }
 
     r.state = "preprepare";
+  }
+
+  onRemove({repo}) {
+    delete this.repositories[repo.id];
+
+    ContentRepositoryUtil.cleanContainers(repo);
   }
 
   onContentPreparerLaunched({repo, container}) {
@@ -86,11 +114,15 @@ class ContentRepositoryStore {
       }
 
       if (r.contentContainer && r.contentContainer.Id === container.Id) {
-        r.reportError("Content service has died.");
+        if (r.state !== "relaunching") {
+          r.reportError("Content service has died.");
+        }
       }
 
       if (r.presenterContainer && r.presenterContainer.Id === container.Id) {
-        r.reportError("Presenter has died.");
+        if (r.state !== "relaunching") {
+          r.reportError("Presenter has died.");
+        }
       }
     }
   }
