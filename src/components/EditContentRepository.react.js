@@ -51,12 +51,19 @@ var EditContentRepository = React.createClass({
   // "Create" or "Save"
   handleCommit: function () {
     if (this.state.isNew) {
-      ContentRepositoryActions.launch(this.state.controlRepositoryLocation,
-        this.state.contentRepositoryPath, this.state.preparer);
+      ContentRepositoryActions.launch(
+        null,
+        this.state.controlRepositoryLocation,
+        this.state.contentRepositoryPath,
+        this.state.preparer
+      );
     } else {
-      ContentRepositoryActions.edit(this.props.params.id,
-        this.state.controlRepositoryLocation, this.state.contentRepositoryPath,
-        this.state.preparer);
+      ContentRepositoryActions.edit(
+        this.props.params.id,
+        this.state.controlRepositoryLocation,
+        this.state.contentRepositoryPath,
+        this.state.preparer
+      );
     }
 
     this.transitionTo("repositoryList");

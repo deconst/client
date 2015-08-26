@@ -11,6 +11,7 @@ import setupUtil from '../utils/SetupUtil';
 import util from '../utils/Util';
 import assign from 'object-assign';
 import docker from '../utils/DockerUtil';
+import ContentRepositoryUtil from '../utils/ContentRepositoryUtil';
 
 var _currentStep = null;
 var _error = null;
@@ -211,6 +212,7 @@ var SetupStore = assign(Object.create(EventEmitter.prototype), {
         docker.setup(ip, machine.name());
         yield docker.waitForConnection();
         yield Promise.fromNode((cb) => docker.cleanAllContainers(cb));
+        yield Promise.fromNode((cb) => ContentRepositoryUtil.loadRepositories(cb));
         break;
       } catch (err) {
         err.message = util.removeSensitiveData(err.message);

@@ -12,6 +12,7 @@ class ContentRepositoryStore {
 
   onLaunch({repo}) {
     this.repositories[repo.id] = repo;
+    ContentRepositoryUtil.saveRepositories(this.repositories);
   }
 
   onEdit({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
@@ -34,6 +35,7 @@ class ContentRepositoryStore {
     r.state = "relaunching";
 
     ContentRepositoryUtil.relaunchContainers(r);
+    ContentRepositoryUtil.saveRepositories(this.repositories);
   }
 
   onPodLaunched({repo, contentContainer, presenterContainer}) {
@@ -71,6 +73,7 @@ class ContentRepositoryStore {
     delete this.repositories[repo.id];
 
     ContentRepositoryUtil.cleanContainers(repo);
+    ContentRepositoryUtil.saveRepositories(this.repositories);
   }
 
   onContentPreparerLaunched({repo, container}) {

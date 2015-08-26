@@ -4,8 +4,8 @@ import ContentRepositoryUtil, {ContentRepository} from '../utils/ContentReposito
 
 class ContentRepositoryActions {
 
-  launch (controlRepositoryLocation, contentRepositoryPath, preparer) {
-    let repo = new ContentRepository(controlRepositoryLocation, contentRepositoryPath, preparer);
+  launch (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
+    let repo = new ContentRepository(id, controlRepositoryLocation, contentRepositoryPath, preparer);
     this.dispatch({repo});
 
     ContentRepositoryUtil.launchServicePod(repo);

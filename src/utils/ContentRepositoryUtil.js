@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import util from 'util';
 import async from 'async';
 import mkdirp from 'mkdirp';
 import osenv from 'osenv';
@@ -17,14 +18,13 @@ function normalize(contentID) {
   return contentID + "/";
 }
 
+var lastID = 0;
+let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
+
 export class ContentRepository {
 
-  constructor (controlRepositoryLocation, contentRepositoryPath, preparer) {
-    let lastID = parseInt(sessionStorage.getItem('content-repository-id') || '0');
-    let id = lastID + 1;
-    sessionStorage.setItem('content-repository-id', id.toString())
-
-    this.id = id;
+  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
+    this.id = id || lastID++;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
@@ -34,6 +34,10 @@ export class ContentRepository {
     this.presenterContainer = null;
     this.contentPreparerContainer = null;
     this.controlPreparerContainer = null;
+
+    if (this.id > lastID) {
+      lastID = this.id + 1;
+    }
 
     // Parse the _deconst.json file to determine the content ID base.
     try {
@@ -158,9 +162,27 @@ export class ContentRepository {
     return ids;
   }
 
+  serialize() {
+    return {
+      id: this.id,
+      controlRepositoryLocation: this.controlRepositoryLocation,
+      contentRepositoryPath: this.contentRepositoryPath,
+      preparer: this.preparer
+    };
+  }
+
   reportError(message) {
     this.state = "error";
     this.error = message;
+  }
+
+  static deserialize({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
+    return new ContentRepository(
+      controlRepositoryLocation,
+      contentRepositoryPath,
+      preparer,
+      id
+    );
   }
 
 };
@@ -314,6 +336,53 @@ export default {
         return;
       }
     });
+  },
+
+  saveRepositories (repos) {
+    let orderedRepos = _.sortBy(_.values(repos), r => r.id);
+    let serializedRepos = _.map(orderedRepos, r => r.serialize());
+
+    fs.writeFile(repositoriesPath, JSON.stringify(serializedRepos), {encoding: 'utf-8'}, (error) => {
+      if (error) {
+        console.error(error);
+      }
+    });
+  },
+
+  loadRepositories (callback) {
+    fs.readFile(repositoriesPath, {encoding: 'utf-8'}, (error, data) => {
+      if (error) {
+        if (error.code !== 'ENOENT') {
+          console.error("Unable to open repository file: " + util.inspect(error));
+        }
+
+        return callback(null);
+      }
+
+      try {
+        JSON.parse(data).forEach((repoDoc) => {
+          let wellFormed = (repoDoc.id !== undefined);
+          wellFormed = wellFormed && (repoDoc.controlRepositoryLocation !== undefined);
+          wellFormed = wellFormed && (repoDoc.contentRepositoryPath !== undefined);
+          wellFormed = wellFormed && (repoDoc.preparer !== undefined);
+
+          if (wellFormed) {
+            ContentRepositoryActions.launch(
+              repoDoc.id,
+              repoDoc.controlRepositoryLocation,
+              repoDoc.contentRepositoryPath,
+              repoDoc.preparer
+            );
+          } else {
+            console.log("Malformed repository document: " + util.inspect(repoDoc));
+          }
+        })
+      } catch (e) {
+        console.error("Unable to parse repository file: " + util.inspect(e));
+      }
+
+      callback(null);
+    })
   }
 
 };
