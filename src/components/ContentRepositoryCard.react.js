@@ -13,10 +13,6 @@ var ContentRepositoryCard = React.createClass({
     ContentRepositoryActions.prepareControl(this.props.repository);
   },
 
-  handleEdit: function () {
-    //
-  },
-
   handleRemove: function() {
     //
   },

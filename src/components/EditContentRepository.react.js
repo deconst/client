@@ -54,7 +54,9 @@ var EditContentRepository = React.createClass({
       ContentRepositoryActions.launch(this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath, this.state.preparer);
     } else {
-      console.log(`Edit to ${this.props.params.id} committed`);
+      ContentRepositoryActions.edit(this.props.params.id,
+        this.state.controlRepositoryLocation, this.state.contentRepositoryPath,
+        this.state.preparer);
     }
 
     this.transitionTo("repositoryList");
