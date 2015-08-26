@@ -21,7 +21,7 @@ var lastID = 0;
 
 export class ContentRepository {
 
-  constructor (controlRepositoryLocation, contentRepositoryPath, preparer, id = null) {
+  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
     this.id = id || lastID++;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
@@ -32,6 +32,10 @@ export class ContentRepository {
     this.presenterContainer = null;
     this.contentPreparerContainer = null;
     this.controlPreparerContainer = null;
+
+    if (this.id > lastID) {
+      lastID = this.id + 1;
+    }
 
     // Parse the _deconst.json file to determine the content ID base.
     try {
