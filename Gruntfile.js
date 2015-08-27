@@ -188,7 +188,7 @@ module.exports = function (grunt) {
           src: ['docker*', 'macsudo', 'terminal'],
           dest: '<%= OSX_FILENAME %>/Contents/Resources/resources/'
         }, {
-          src: 'util/kitematic.icns',
+          src: 'util/deconst.icns',
           dest: '<%= OSX_FILENAME %>/Contents/Resources/atom.icns'
         }],
         options: {
