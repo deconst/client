@@ -18,7 +18,7 @@ var ContentRepositoryCard = React.createClass({
   },
 
   handleRetry: function () {
-    //
+    ContentRepositoryActions.relaunch(this.props.repository);
   },
 
   render: function () {
