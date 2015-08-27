@@ -1,3 +1,4 @@
+import path from 'path';
 import React from 'react/addons';
 import Router from 'react-router';
 import remote from 'remote';
@@ -16,6 +17,8 @@ var EditContentRepository = React.createClass({
   getInitialState: function () {
     return {
       isNew: true,
+      manualDisplayName: false,
+      displayName: null,
       contentRepositoryPath: null,
       controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx"
@@ -30,11 +33,23 @@ var EditContentRepository = React.createClass({
 
       this.setState({
         isNew: false,
+        manualDisplayName: !! repo.displayName,
+        displayName: repo.name(),
         contentRepositoryPath: repo.contentRepositoryPath,
         controlRepositoryLocation: repo.controlRepositoryLocation,
         preparer: repo.preparer
       });
     }
+  },
+
+  updateContentRepository: function (repoPath) {
+    let nstate = {contentRepositoryPath: repoPath};
+
+    if (!this.state.manualDisplayName) {
+      nstate.displayName = path.basename(nstate.contentRepositoryPath);
+    }
+
+    this.setState(nstate);
   },
 
   handleOpenContent: function() {
@@ -44,7 +59,7 @@ var EditContentRepository = React.createClass({
     });
 
     if (results && results.length > 0) {
-      this.setState({contentRepositoryPath: results[0]});
+      this.updateContentRepository(results[0]);
     }
   },
 
@@ -59,8 +74,15 @@ var EditContentRepository = React.createClass({
     }
   },
 
+  handleDisplayNameChange: function (e) {
+    this.setState({
+      manualDisplayName: true,
+      displayName: e.target.value
+    });
+  },
+
   handleRepositoryPathChange: function (e) {
-    this.setState({contentRepositoryPath: e.target.value});
+    this.updateContentRepository(e.target.value);
   },
 
   handleControlRepositoryChange: function (e) {
@@ -77,9 +99,12 @@ var EditContentRepository = React.createClass({
 
   // "Create" or "Save"
   handleCommit: function () {
+    let displayName = this.state.manualDisplayName ? this.state.displayName : null;
+
     if (this.state.isNew) {
       ContentRepositoryActions.launch(
         null,
+        displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
         this.state.preparer
@@ -87,6 +112,7 @@ var EditContentRepository = React.createClass({
     } else {
       ContentRepositoryActions.edit(
         this.props.params.id,
+        displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
         this.state.preparer
@@ -106,10 +132,15 @@ var EditContentRepository = React.createClass({
       <div className="edit-content-repository">
         <div className="container">
           <h1>{banner}</h1>
+          <div className="display-name">
+            <h3>Display Name</h3>
+            <p className="explanation">Name that will appear in the repository list in this app.</p>
+            <input type="text" className="line" value={this.state.displayName} placeholder="derived from content repository path" onChange={this.handleDisplayNameChange}></input>
+          </div>
           <div className="repository-path">
             <h3>Content Repository Path</h3>
             <p className="explanation">Filesystem path to the content repository.</p>
-            <input type="text" className="line" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
+            <input type="text" className="line fs-path" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
             <button className="btn btn-default btn-sm browse" onClick={this.handleOpenContent}>browse</button>
           </div>
           <div className="control-repository">
@@ -117,7 +148,7 @@ var EditContentRepository = React.createClass({
             <p className="explanation">
               Location of the control repository. May be either a git URL or a local filesystem path.
             </p>
-            <input type="text" className="line" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
+            <input type="text" className="line fs-path" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
             <button className="btn btn-default btn-sm browse" onClick={this.handleOpenControl}>browse</button>
           </div>
           <div className="preparer">

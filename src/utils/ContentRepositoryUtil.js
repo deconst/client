@@ -23,8 +23,9 @@ let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
 
 export class ContentRepository {
 
-  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
     this.id = id || lastID++;
+    this.displayName = displayName;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
@@ -101,7 +102,7 @@ export class ContentRepository {
   }
 
   name () {
-    return path.basename(this.contentRepositoryPath);
+    return this.displayName || path.basename(this.contentRepositoryPath);
   }
 
   _containerURL(container, ...rest) {
@@ -168,6 +169,7 @@ export class ContentRepository {
   serialize() {
     return {
       id: this.id,
+      displayName: this.displayName,
       controlRepositoryLocation: this.controlRepositoryLocation,
       contentRepositoryPath: this.contentRepositoryPath,
       preparer: this.preparer
@@ -177,15 +179,6 @@ export class ContentRepository {
   reportError(message) {
     this.state = "error";
     this.error = message;
-  }
-
-  static deserialize({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
-    return new ContentRepository(
-      controlRepositoryLocation,
-      contentRepositoryPath,
-      preparer,
-      id
-    );
   }
 
 };
@@ -372,6 +365,7 @@ export default {
           if (wellFormed) {
             ContentRepositoryActions.launch(
               repoDoc.id,
+              repoDoc.displayName || null,
               repoDoc.controlRepositoryLocation,
               repoDoc.contentRepositoryPath,
               repoDoc.preparer

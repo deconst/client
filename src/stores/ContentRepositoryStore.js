@@ -18,12 +18,13 @@ class ContentRepositoryStore {
     ContentRepositoryUtil.saveRepositories(this.repositories);
   }
 
-  onEdit({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
+  onEdit({id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer}) {
     let r = this.repositories[id];
     if (!r) {
       return;
     }
-    let changed = (controlRepositoryLocation !== r.controlRepositoryLocation);
+    let changed = (displayName !== r.displayName);
+    changed = changed || (controlRepositoryLocation !== r.controlRepositoryLocation);
     changed = changed || (contentRepositoryPath !== r.contentRepositoryPath);
     changed = changed || (preparer !== r.preparer);
 
@@ -31,6 +32,7 @@ class ContentRepositoryStore {
       return;
     }
 
+    r.displayName = displayName;
     r.controlRepositoryLocation = controlRepositoryLocation;
     r.contentRepositoryPath = contentRepositoryPath;
     r.preparer = preparer;
