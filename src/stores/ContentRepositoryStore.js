@@ -150,6 +150,7 @@ class ContentRepositoryStore {
         r.contentPreparerContainer = null;
         if (!r.isPreparing()) {
           r.state = "ready";
+          r.hasPrepared = true;
         }
       }
 
@@ -158,6 +159,7 @@ class ContentRepositoryStore {
         r.controlPreparerContainer = null;
         if (!r.isPreparing()) {
           r.state = "ready";
+          r.hasPrepared = true;
         }
       }
 

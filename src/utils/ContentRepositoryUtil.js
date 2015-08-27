@@ -28,8 +28,10 @@ export class ContentRepository {
     this.displayName = displayName;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
-    this.state = "launching";
     this.preparer = preparer;
+
+    this.state = "launching";
+    this.hasPrepared = false;
 
     this.contentContainer = null;
     this.presenterContainer = null;
