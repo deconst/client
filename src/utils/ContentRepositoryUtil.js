@@ -136,7 +136,7 @@ export class ContentRepository {
   canPreview() {
     let hasPresenterContainer = !! this.presenterContainer;
 
-    return hasPresenterContainer;
+    return hasPresenterContainer && this.hasPrepared;
   }
 
   isPreparing() {
