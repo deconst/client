@@ -33,7 +33,8 @@ var EditContentRepository = React.createClass({
 
       this.setState({
         isNew: false,
-        displayName: repo.displayName,
+        manualDisplayName: !! repo.displayName,
+        displayName: repo.name(),
         contentRepositoryPath: repo.contentRepositoryPath,
         controlRepositoryLocation: repo.controlRepositoryLocation,
         preparer: repo.preparer
