@@ -39,7 +39,7 @@ var ContentRepositoryCard = React.createClass({
 
     if (repo.canSubmit()) {
       submitElement = (
-        <a classNames="btn btn-link" onClick={this.handleSubmit}>submit</a>
+        <a className="btn btn-link" onClick={this.handleSubmit}>submit</a>
       );
     } else {
       submitElement = (
@@ -53,9 +53,7 @@ var ContentRepositoryCard = React.createClass({
       );
 
       retryElement = (
-        <li>
-          <a classNames="btn btn-link" onClick={this.handleRetry}>retry</a>
-        </li>
+        <li><a className="btn btn-link" onClick={this.handleRetry}>retry</a></li>
       )
     }
 
@@ -68,7 +66,7 @@ var ContentRepositoryCard = React.createClass({
             {retryElement}
             <li>{submitElement}</li>
             <li><Router.Link to="editRepository" params={{id: repo.id}} className="btn btn-link">edit</Router.Link></li>
-            <li><a classNames="btn btn-link" onClick={this.handleRemove}>remove</a></li>
+            <li><a className="btn btn-link" onClick={this.handleRemove}>remove</a></li>
           </ul>
         </div>
         {detailElement}
