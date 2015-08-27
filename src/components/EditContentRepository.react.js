@@ -98,9 +98,12 @@ var EditContentRepository = React.createClass({
 
   // "Create" or "Save"
   handleCommit: function () {
+    let displayName = this.state.manualDisplayName ? this.state.displayName : null;
+
     if (this.state.isNew) {
       ContentRepositoryActions.launch(
         null,
+        displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
         this.state.preparer
@@ -108,6 +111,7 @@ var EditContentRepository = React.createClass({
     } else {
       ContentRepositoryActions.edit(
         this.props.params.id,
+        displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
         this.state.preparer
