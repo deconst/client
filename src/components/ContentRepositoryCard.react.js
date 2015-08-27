@@ -13,13 +13,17 @@ var ContentRepositoryCard = React.createClass({
     ContentRepositoryActions.prepareControl(this.props.repository);
   },
 
-  handleRemove: function() {
+  handleRemove: function () {
     ContentRepositoryActions.remove(this.props.repository);
+  },
+
+  handleRetry: function () {
+    //
   },
 
   render: function () {
     let repo = this.props.repository;
-    let nameElement, detailElement, submitElement;
+    let nameElement, detailElement, retryElement, submitElement;
 
     if (repo.canPreview()) {
       // Render the name as a link.
@@ -47,6 +51,12 @@ var ContentRepositoryCard = React.createClass({
       detailElement = (
         <p className="detail error">{repo.error.toString()}</p>
       );
+
+      retryElement = (
+        <li>
+          <a classNames="btn btn-link" onClick={this.handleRetry}>retry</a>
+        </li>
+      )
     }
 
     return (
@@ -55,6 +65,7 @@ var ContentRepositoryCard = React.createClass({
           {nameElement}
           <span className="state">{repo.state}</span>
           <ul className="controls">
+            {retryElement}
             <li>{submitElement}</li>
             <li><Router.Link to="editRepository" params={{id: repo.id}} className="btn btn-link">edit</Router.Link></li>
             <li><a classNames="btn btn-link" onClick={this.handleRemove}>remove</a></li>
