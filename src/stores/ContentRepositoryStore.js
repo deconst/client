@@ -121,6 +121,18 @@ class ContentRepositoryStore {
     }
   }
 
+  onRelaunch({repo}) {
+    let r = this.repositories[repo.id];
+    if (!r) {
+      return;
+    }
+
+    r.error = null;
+    r.state = "relaunching";
+
+    ContentRepositoryUtil.relaunchContainers(r);
+  }
+
   onContentPreparerLaunched({repo, container}) {
     let r = this.repositories[repo.id];
     if (!r) {

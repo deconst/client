@@ -37,6 +37,10 @@ class ContentRepositoryActions {
     this.dispatch({repo});
   }
 
+  relaunch (repo) {
+    this.dispatch({repo});
+  }
+
   podLaunched ({repo, contentContainer, presenterContainer}) {
     this.dispatch({repo, contentContainer, presenterContainer});
   }
