@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import chokidar from 'chokidar';
+import ipc from 'ipc';
 
 import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
@@ -163,6 +164,7 @@ class ContentRepositoryStore {
         if (!r.isPreparing()) {
           r.state = "ready";
           r.hasPrepared = true;
+          ipc.send('deconst:bounce');
         }
       }
 
@@ -172,6 +174,7 @@ class ContentRepositoryStore {
         if (!r.isPreparing()) {
           r.state = "ready";
           r.hasPrepared = true;
+          ipc.send('deconst:bounce');
         }
       }
 
