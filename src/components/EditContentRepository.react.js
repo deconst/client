@@ -135,7 +135,7 @@ var EditContentRepository = React.createClass({
           <div className="display-name">
             <h3>Display Name</h3>
             <p className="explanation">Name that will appear in the repository list in this app.</p>
-            <input type="text" className="line" value={this.state.displayName} onChange={this.handleDisplayNameChange}></input>
+            <input type="text" className="line" value={this.state.displayName} placeholder="derived from content repository path" onChange={this.handleDisplayNameChange}></input>
           </div>
           <div className="repository-path">
             <h3>Content Repository Path</h3>
