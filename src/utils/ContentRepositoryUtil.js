@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import util from 'util';
+import ipc from 'ipc';
 import async from 'async';
 import mkdirp from 'mkdirp';
 import osenv from 'osenv';
@@ -176,6 +177,12 @@ export class ContentRepository {
       contentRepositoryPath: this.contentRepositoryPath,
       preparer: this.preparer
     };
+  }
+
+  reportPreparerComplete() {
+    this.state = "ready";
+    this.hasPrepared = true;
+    ipc.send('deconst:bounce');
   }
 
   reportError(message) {

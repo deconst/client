@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import chokidar from 'chokidar';
-import ipc from 'ipc';
 
 import alt from '../alt';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
@@ -53,11 +52,8 @@ class ContentRepositoryStore {
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    let prepareContent = () => ContentRepositoryUtil.launchContentPreparer(r);
-    let prepareControl = () => ContentRepositoryUtil.launchControlPreparer(r);
-
-    prepareContent();
-    prepareControl();
+    ContentRepositoryUtil.launchContentPreparer(r);
+    ContentRepositoryUtil.launchControlPreparer(r);
 
     let installWatcher = (root, fn, callback) => {
       let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'build'];
@@ -82,6 +78,16 @@ class ContentRepositoryStore {
 
         callback(null, watcher);
       });
+    };
+
+    let prepareContent = () => {
+      r.state = "preprepare";
+      ContentRepositoryUtil.launchContentPreparer(r);
+    }
+
+    let prepareControl = () => {
+      r.state = "preprepare";
+      ContentRepositoryUtil.launchControlPreparer(r);
     };
 
     installWatcher(r.contentRepositoryPath, prepareContent, (w) => r.contentWatcher = w);
@@ -162,9 +168,7 @@ class ContentRepositoryStore {
         // This repository's preparer has completed.
         r.contentPreparerContainer = null;
         if (!r.isPreparing()) {
-          r.state = "ready";
-          r.hasPrepared = true;
-          ipc.send('deconst:bounce');
+          r.reportPreparerComplete();
         }
       }
 
@@ -172,9 +176,7 @@ class ContentRepositoryStore {
         // The control preparer has completed.
         r.controlPreparerContainer = null;
         if (!r.isPreparing()) {
-          r.state = "ready";
-          r.hasPrepared = true;
-          ipc.send('deconst:bounce');
+          r.reportPreparerComplete();
         }
       }
 
