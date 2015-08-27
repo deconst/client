@@ -23,8 +23,9 @@ let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
 
 export class ContentRepository {
 
-  constructor (id, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
     this.id = id || lastID++;
+    this.displayName = displayName;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.state = "launching";
@@ -101,7 +102,7 @@ export class ContentRepository {
   }
 
   name () {
-    return path.basename(this.contentRepositoryPath);
+    return this.displayName || path.basename(this.contentRepositoryPath);
   }
 
   _containerURL(container, ...rest) {
