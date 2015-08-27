@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Kitematic (Development)</string>
+	<string>Deconst Client</string>
 	<key>CFBundleExecutable</key>
 	<string>Atom</string>
 	<key>CFBundleIconFile</key>
 	<string>atom.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.kitematic.development</string>
+	<string>com.deconst.client</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Kitematic (Development)</string>
+	<string>Deconst Client</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
@@ -26,16 +26,5 @@
 	<string>AtomApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>docker</string>
-			</array>
-			<key>CFBundleURLName</key>
-			<string>Docker App Protocol</string>
-		</dict>
-	</array>
 </dict>
 </plist>
