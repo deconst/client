@@ -6,6 +6,8 @@ The Deconst client is an application that can build a content repository as you 
 
 It's built on [kite-shell](https://github.com/smashwilson/kite-shell), which is based heavily on [Kitematic](https://kitematic.com/).
 
+![client](https://raw.github.com/deconst/client/master/docs/client.jpg)
+
 ## Installing
 
 To install the Deconst client:
