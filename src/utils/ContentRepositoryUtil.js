@@ -169,6 +169,7 @@ export class ContentRepository {
   serialize() {
     return {
       id: this.id,
+      displayName: this.displayName,
       controlRepositoryLocation: this.controlRepositoryLocation,
       contentRepositoryPath: this.contentRepositoryPath,
       preparer: this.preparer
@@ -178,15 +179,6 @@ export class ContentRepository {
   reportError(message) {
     this.state = "error";
     this.error = message;
-  }
-
-  static deserialize({id, controlRepositoryLocation, contentRepositoryPath, preparer}) {
-    return new ContentRepository(
-      controlRepositoryLocation,
-      contentRepositoryPath,
-      preparer,
-      id
-    );
   }
 
 };
@@ -373,6 +365,7 @@ export default {
           if (wellFormed) {
             ContentRepositoryActions.launch(
               repoDoc.id,
+              repoDoc.displayName || null,
               repoDoc.controlRepositoryLocation,
               repoDoc.contentRepositoryPath,
               repoDoc.preparer
