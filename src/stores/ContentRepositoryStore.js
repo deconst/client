@@ -59,7 +59,7 @@ class ContentRepositoryStore {
     prepareControl();
 
     let installWatcher = (root, fn, callback) => {
-      let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'build'];
+      let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'npm-debug.log', 'build'];
       let gitignorePath = path.join(root, ".gitignore");
 
       fs.readFile(gitignorePath, {encoding: 'utf-8'}, (error, content) => {
