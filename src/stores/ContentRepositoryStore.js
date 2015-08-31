@@ -56,7 +56,7 @@ class ContentRepositoryStore {
     ContentRepositoryUtil.launchControlPreparer(r);
 
     let installWatcher = (root, fn, callback) => {
-      let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'npm-debug.log', 'build',
+      let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'npm-debug.log*', 'build',
         '**/node_modules/**'];
       let gitignorePath = path.join(root, ".gitignore");
 
