@@ -145,9 +145,7 @@ var EditContentRepository = React.createClass({
           </div>
           <div className="control-repository">
             <h3>Control Repository Location</h3>
-            <p className="explanation">
-              Location of the control repository. May be either a git URL or a local filesystem path.
-            </p>
+            <p className="explanation">Filesystem path to the control repository.</p>
             <input type="text" className="line fs-path" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
             <button className="btn btn-default btn-sm browse" onClick={this.handleOpenControl}>browse</button>
           </div>
