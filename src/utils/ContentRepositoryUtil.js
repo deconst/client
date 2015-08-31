@@ -7,6 +7,7 @@ import mkdirp from 'mkdirp';
 import osenv from 'osenv';
 import urlJoin from 'url-join';
 import _ from 'underscore';
+import ipc from 'ipc';
 
 import DockerUtil from './DockerUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
@@ -176,6 +177,38 @@ export class ContentRepository {
       contentRepositoryPath: this.contentRepositoryPath,
       preparer: this.preparer
     };
+  }
+
+  reportPreparerComplete(container) {
+    let preparerName;
+
+    if (this.contentPreparerContainer && this.contentPreparerContainer.Id === container.Id) {
+      this.contentPreparerContainer = null;
+      preparerName = "content";
+    }
+
+    if (this.controlPreparerContainer && this.controlPreparerContainer.Id === container.Id) {
+      this.controlPreparerContainer = null;
+      preparerName = "control";
+    }
+
+    if (!preparerName) {
+      return;
+    }
+
+    if (container.State.ExitCode === 0) {
+      // Clean exit. Hooray!
+      if (!this.isPreparing()) {
+        this.state = "ready";
+        this.hasPrepared = true;
+        ipc.send('deconst:preparer-completion');
+      }
+    } else if (container.State.ExitCode === 137) {
+      // Killed, presumably to run a new preparer.
+    } else {
+      // Boom! Something went wrong.
+      this.reportError(`The ${preparerName} preparer exited with status ${container.State.ExitCode}.`);
+    }
   }
 
   reportError(message) {

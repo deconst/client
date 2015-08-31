@@ -69,6 +69,12 @@ app.on('ready', function () {
     autoUpdater.quitAndInstall();
   });
 
+  ipc.on('deconst:preparer-completion', function () {
+    if (!mainWindow || !mainWindow.isFocused()) {
+      app.dock.bounce();
+    }
+  });
+
   if (os.platform() === 'win32') {
     mainWindow.on('close', function () {
       mainWindow.webContents.send('application:quitting');
