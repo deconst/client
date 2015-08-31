@@ -52,11 +52,8 @@ class ContentRepositoryStore {
     r.contentContainer = contentContainer;
     r.presenterContainer = presenterContainer;
 
-    let prepareContent = () => ContentRepositoryUtil.launchContentPreparer(r);
-    let prepareControl = () => ContentRepositoryUtil.launchControlPreparer(r);
-
-    prepareContent();
-    prepareControl();
+    ContentRepositoryUtil.launchContentPreparer(r);
+    ContentRepositoryUtil.launchControlPreparer(r);
 
     let installWatcher = (root, fn, callback) => {
       let ignored = ['_build/**', '_site/**', '.git/**', '.DS_Store', 'npm-debug.log', 'build'];
@@ -83,7 +80,16 @@ class ContentRepositoryStore {
       });
     };
 
+    let prepareContent = (path) => {
+      console.log("Launching content preparer because of a change to: " + path);
+      ContentRepositoryUtil.launchContentPreparer(r)
+    };
     installWatcher(r.contentRepositoryPath, prepareContent, (w) => r.contentWatcher = w);
+
+    let prepareControl = (path) => {
+      console.log("Launching control preparer because of a change to: " + path);
+      ContentRepositoryUtil.launchControlPreparer(r);
+    };
     installWatcher(r.controlRepositoryLocation, prepareControl, (w) => r.controlWatcher = w);
   }
 
