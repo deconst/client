@@ -164,38 +164,13 @@ class ContentRepositoryStore {
     // Identify which repository this container belongs to, if any.
     for(let id in this.repositories) {
       let r = this.repositories[id];
-      if (r.contentPreparerContainer && r.contentPreparerContainer.Id === container.Id) {
-        r.contentPreparerContainer = null;
 
-        // This repository's preparer has completed.
-        if (container.State.ExitCode === 0) {
-          // Clean exit. Hooray!
-          if (!r.isPreparing()) {
-            r.reportPreparerComplete();
-          }
-        } else if (container.State.ExitCode === 137) {
-          // Killed, presumably to run a new preparer.
-        } else {
-          // Boom! Something went wrong.
-          r.reportError(`The content preparer exited with status ${container.State.ExitCode}.`);
-        }
+      if (r.contentPreparerContainer && r.contentPreparerContainer.Id === container.Id) {
+        r.reportPreparerComplete(container);
       }
 
       if (r.controlPreparerContainer && r.controlPreparerContainer.Id === container.Id) {
-        // The control preparer has completed.
-        r.controlPreparerContainer = null;
-
-        if (container.State.ExitCode === 0) {
-          // Clean exit. Hooray!
-          if (!r.isPreparing()) {
-            r.reportPreparerComplete();
-          }
-        } else if (container.State.ExitCode === 137) {
-          // Killed, presumably to run a new preparer.
-        } else {
-          // Boom! Something went wrong.
-          r.reportError(`The control preparer exited with status ${container.State.ExitCode}.`);
-        }
+        r.reportPreparerComplete(container);
       }
 
       if (r.contentContainer && r.contentContainer.Id === container.Id) {
