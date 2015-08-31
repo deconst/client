@@ -70,7 +70,9 @@ app.on('ready', function () {
   });
 
   ipc.on('deconst:preparer-completion', function () {
-    app.dock.bounce();
+    if (!mainWindow || !mainWindow.isFocused()) {
+      app.dock.bounce();
+    }
   });
 
   if (os.platform() === 'win32') {
