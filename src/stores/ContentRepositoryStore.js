@@ -174,6 +174,8 @@ class ContentRepositoryStore {
       }
 
       if (r.controlPreparerContainer && r.controlPreparerContainer.Id === container.Id) {
+        console.log(`Exit status: ${container.State.ExitCode}`);
+
         // The control preparer has completed.
         r.controlPreparerContainer = null;
         if (!r.isPreparing()) {
