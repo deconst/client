@@ -232,7 +232,7 @@ export default {
       ],
       HostConfig: {
         Binds: [
-          repo.controlRepositoryLocation + ':/var/control-repo:ro',
+          repo.controlRepositoryLocation + ':/var/control-repo',
           controlOverrideDir + ':/var/override:ro'
         ],
         Links: [ "content-" + repo.id + ":content" ],
