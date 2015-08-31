@@ -7,6 +7,7 @@ import mkdirp from 'mkdirp';
 import osenv from 'osenv';
 import urlJoin from 'url-join';
 import _ from 'underscore';
+import ipc from 'ipc';
 
 import DockerUtil from './DockerUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
@@ -176,6 +177,12 @@ export class ContentRepository {
       contentRepositoryPath: this.contentRepositoryPath,
       preparer: this.preparer
     };
+  }
+
+  reportPreparerComplete() {
+    this.state = "ready";
+    this.hasPrepared = true;
+    ipc.send('deconst:preparer-completion');
   }
 
   reportError(message) {

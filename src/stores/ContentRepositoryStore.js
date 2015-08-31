@@ -171,8 +171,7 @@ class ContentRepositoryStore {
         if (container.State.ExitCode === 0) {
           // Clean exit. Hooray!
           if (!r.isPreparing()) {
-            r.state = "ready";
-            r.hasPrepared = true;
+            r.reportPreparerComplete();
           }
         } else if (container.State.ExitCode === 137) {
           // Killed, presumably to run a new preparer.
@@ -189,8 +188,7 @@ class ContentRepositoryStore {
         if (container.State.ExitCode === 0) {
           // Clean exit. Hooray!
           if (!r.isPreparing()) {
-            r.state = "ready";
-            r.hasPrepared = true;
+            r.reportPreparerComplete();
           }
         } else if (container.State.ExitCode === 137) {
           // Killed, presumably to run a new preparer.
