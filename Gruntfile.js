@@ -66,7 +66,7 @@ module.exports = function (grunt) {
           version: packagejson['electron-version'],
           platform: 'win32',
           arch: 'x64',
-          asar: true,
+          asar: true//,
           // icon: 'util/kitematic.ico'
         }
       },
@@ -123,18 +123,18 @@ module.exports = function (grunt) {
       }
     },
 
-    // 'create-windows-installer': {
-    //   appDirectory: 'dist/' + BASENAME + '-win32/',
-    //   authors: 'Docker Inc.',
-    //   loadingGif: 'util/loading.gif',
-    //   setupIcon: 'util/setup.ico',
-    //   iconUrl: 'https://raw.githubusercontent.com/kitematic/kitematic/master/util/kitematic.ico',
-    //   description: APPNAME,
-    //   title: APPNAME,
-    //   exe: BASENAME + '.exe',
-    //   version: packagejson.version,
+     'create-windows-installer': {
+       appDirectory: 'dist/' + BASENAME + '-win32/',
+       authors: 'Docker Inc.',
+       loadingGif: 'util/loading.gif',
+       //setupIcon: 'util/setup.ico',
+       //iconUrl: 'https://raw.githubusercontent.com/kitematic/kitematic/master/util/kitematic.ico',
+       description: APPNAME,
+       title: APPNAME,
+       exe: BASENAME + '.exe',
+       version: packagejson.version//,
     //   signWithParams: '/f ' + certificateFile + ' /p <%= certificatePassword %> /tr http://timestamp.comodoca.com/rfc3161'
-    // },
+     },
 
     // docker binaries
     'download-binary': {
@@ -306,7 +306,7 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['download-binary', 'newer:babel', 'less', 'newer:copy:dev', 'shell:electron', 'watchChokidar']);
 
   if (process.platform === 'win32') {
-    grunt.registerTask('release', ['clean:release', 'download-binary', 'babel', 'less', 'copy:dev', 'electron:windows', 'copy:windows', 'rcedit:exes', 'prompt:create-windows-installer', 'create-windows-installer', 'rename:installer']);
+    grunt.registerTask('release', ['clean:release', 'download-binary', 'babel', 'less', 'copy:dev', 'electron:windows', 'copy:windows', 'rcedit:exes', /*'prompt:create-windows-installer',*/ 'create-windows-installer', 'rename:installer']);
   } else {
     grunt.registerTask('release', ['clean:release', 'download-binary', 'babel', 'less', 'copy:dev', 'electron:osx', 'copy:osx', /*'shell:sign'*/, 'shell:zip']);
   }
