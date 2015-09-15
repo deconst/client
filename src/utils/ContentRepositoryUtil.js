@@ -308,7 +308,7 @@ export default {
         "TRAVIS_PULL_REQUEST=false"
       ],
       HostConfig: {
-        Binds: [repo.contentRepositoryPath + ":/usr/control-repo"],
+        Binds: [repo.contentRepositoryPath + ":/usr/content-repo"],
         ReadonlyRootfs: true
       }
     };
