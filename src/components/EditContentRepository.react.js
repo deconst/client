@@ -5,7 +5,7 @@ import remote from 'remote';
 
 var dialog = remote.require('dialog');
 
-import {ContentRepository} from '../utils/ContentRepositoryUtil';
+import {ContentRepository, validateContentRepository} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -21,7 +21,12 @@ var EditContentRepository = React.createClass({
       displayName: null,
       contentRepositoryPath: null,
       controlRepositoryLocation: lastControlRepository,
-      preparer: "sphinx"
+      preparer: "sphinx",
+      validationErrors: {
+        displayName: [],
+        controlRepositoryLocation: [],
+        contentRepositoryPath: []
+      },
     };
   },
 
@@ -42,6 +47,19 @@ var EditContentRepository = React.createClass({
     }
   },
 
+  revalidate: function (nstate) {
+    this.setState(nstate, () => {
+      validateContentRepository(this.state, (err, results) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        this.setState({validationErrors: results});
+      });
+    });
+  },
+
   updateContentRepository: function (repoPath) {
     let nstate = {contentRepositoryPath: repoPath};
 
@@ -49,7 +67,7 @@ var EditContentRepository = React.createClass({
       nstate.displayName = path.basename(nstate.contentRepositoryPath);
     }
 
-    this.setState(nstate);
+    this.revalidate(nstate);
   },
 
   handleOpenContent: function() {
@@ -70,12 +88,12 @@ var EditContentRepository = React.createClass({
     });
 
     if (results && results.length > 0) {
-      this.setState({controlRepositoryLocation: results[0]});
+      this.revalidate({controlRepositoryLocation: results[0]});
     }
   },
 
   handleDisplayNameChange: function (e) {
-    this.setState({
+    this.revalidate({
       manualDisplayName: true,
       displayName: e.target.value
     });
@@ -86,11 +104,11 @@ var EditContentRepository = React.createClass({
   },
 
   handleControlRepositoryChange: function (e) {
-    this.setState({controlRepositoryLocation: e.target.value});
+    this.revalidate({controlRepositoryLocation: e.target.value});
   },
 
   handlePreparerChange: function (e) {
-    this.setState({preparer: e.target.value});
+    this.revalidate({preparer: e.target.value});
   },
 
   handleCancel: function () {

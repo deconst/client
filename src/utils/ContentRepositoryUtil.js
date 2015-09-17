@@ -45,24 +45,34 @@ function validateDirectory(dir, allOf, callback) {
 
     let allOfPaths = allOf.map((fname) => path.join(dir, fname));
 
-    async.reject(allOfPaths, fs.access, (missing) => {
-      let errors = missing.map((fpath) => `${path.basename(fpath)} isn't there`);
+    console.log(`Testing paths: ${allOfPaths.join(', ')}`);
+
+    let isReadable = (p, cb) => {
+      fs.access(p, fs.R_OK, (err) => cb(err === null));
+    };
+
+    async.reject(allOfPaths, isReadable, (missing) => {
+      let errors = missing.map((fpath) => `${path.basename(fpath)} isn't readable`);
 
       callback(null, errors);
     });
   });
 }
 
-export function validateContentRepository(displayName, controlRepositoryLocation, contentRepositoryPath, preparer, callback) {
-  async.parallel([
+export function validateContentRepository({displayName, controlRepositoryLocation, contentRepositoryPath, preparer}, callback) {
+  async.parallel({
     displayName: (cb) => {
-      if (displayName.length === 0) {
+      if (displayName !== null && displayName.length === 0) {
         return cb(null, ["Please specify a nonempty display name."]);
       }
 
       cb(null, []);
     },
     controlRepositoryLocation: (cb) => {
+      if (controlRepositoryLocation === null) {
+        return cb(null, []);
+      }
+
       validateDirectory(controlRepositoryLocation, ['package.json', 'Gruntfile.js'], (err, results) => {
         if (err) return cb(err);
 
@@ -74,6 +84,10 @@ export function validateContentRepository(displayName, controlRepositoryLocation
       });
     },
     contentRepositoryPath: (cb) => {
+      if (contentRepositoryPath === null) {
+        return cb(null, []);
+      }
+
       let allOf = (preparer === 'sphinx') ? ['conf.py'] : ['_config.yml'];
 
       validateDirectory(contentRepositoryPath, allOf, (err, results) => {
@@ -85,7 +99,7 @@ export function validateContentRepository(displayName, controlRepositoryLocation
 
         cb(null, results);
       });
-    },
+    }
   }, callback);
 }
 
