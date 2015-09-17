@@ -22,6 +22,9 @@ function normalize(contentID) {
 var lastID = 0;
 let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
 
+const DEFAULT_CONTENT_ID_BASE = 'local-content/';
+const DEFAULT_SITE = 'local.site.horse';
+
 export class ContentRepository {
 
   constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
@@ -58,7 +61,7 @@ export class ContentRepository {
     }
 
     if (! this.contentIDBase) {
-      this.contentIDBase = 'https://content-id-base/';
+      this.contentIDBase = DEFAULT_CONTENT_ID_BASE;
     }
 
     let configRoot = path.join(this.controlRepositoryLocation, 'config');
@@ -68,8 +71,9 @@ export class ContentRepository {
     // * The subpath that the content ID is mapped to.
     try {
       let contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'content.json')));
+      let sites = Object.keys(contentMap);
 
-      Object.keys(contentMap).forEach((site) => {
+      sites.forEach((site) => {
         let siteMap = contentMap[site].content || {};
         let prefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
 
@@ -78,12 +82,19 @@ export class ContentRepository {
           this.prefix = prefix;
         }
       });
+
+      // Map to the first site in the conf file, if any are available, so that you at least have
+      // a default template to render with.
+      if (! this.site && sites.length > 0) {
+        this.site = sites[0];
+      }
     } catch (err) {
       console.error(err);
     }
 
+    // Fall back to DEFAULT_SITE if there are no content mappings at all.
     if (! this.site) {
-      this.site = 'local.deconst.horse';
+      this.site = DEFAULT_SITE;
     }
 
     if (! this.prefix) {
@@ -305,6 +316,7 @@ export default {
       Env: [
         "CONTENT_STORE_URL=" + repo.contentURL(),
         "CONTENT_STORE_APIKEY=supersecret",
+        "CONTENT_ID_BASE=" + repo.contentIDBase,
         "TRAVIS_PULL_REQUEST=false"
       ],
       HostConfig: {
