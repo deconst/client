@@ -316,6 +316,7 @@ export default {
       Env: [
         "CONTENT_STORE_URL=" + repo.contentURL(),
         "CONTENT_STORE_APIKEY=supersecret",
+        "CONTENT_ID_BASE=" + repo.contentIDBase,
         "TRAVIS_PULL_REQUEST=false"
       ],
       HostConfig: {
