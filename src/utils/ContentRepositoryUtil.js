@@ -25,6 +25,85 @@ let repositoriesPath = path.join(osenv.home(), '.deconst', 'repositories.json');
 const DEFAULT_CONTENT_ID_BASE = 'local-content/';
 const DEFAULT_SITE = 'local.site.horse';
 
+function validateDirectory(dir, allOf, callback) {
+  fs.readdir(dir, (err, files) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        return callback(null, [`${dir} does not exist.`]);
+      }
+
+      if (err.code === 'ENOTDIR') {
+        return callback(null, [`${dir} is not a directory.`]);
+      }
+
+      if (err.code === 'EACCES') {
+        return callback(null, [`${dir} is not readable.`]);
+      }
+
+      return callback(err);
+    }
+
+    let allOfPaths = allOf.map((fname) => path.join(dir, fname));
+
+    console.log(`Testing paths: ${allOfPaths.join(', ')}`);
+
+    let isReadable = (p, cb) => {
+      fs.access(p, fs.R_OK, (err) => cb(err === null));
+    };
+
+    async.reject(allOfPaths, isReadable, (missing) => {
+      let errors = missing.map((fpath) => `${path.basename(fpath)} can't be found.`);
+
+      callback(null, errors || []);
+    });
+  });
+}
+
+export function validateContentRepository({displayName, controlRepositoryLocation, contentRepositoryPath, preparer}, callback) {
+  async.parallel({
+    displayName: (cb) => {
+      if (displayName !== null && displayName.length === 0) {
+        return cb(null, ["Please specify a nonempty display name."]);
+      }
+
+      cb(null, []);
+    },
+    controlRepositoryLocation: (cb) => {
+      if (controlRepositoryLocation === null) {
+        return cb(null, []);
+      }
+
+      validateDirectory(controlRepositoryLocation, ['package.json', 'Gruntfile.js'], (err, results) => {
+        if (err) return cb(err);
+
+        if (results.length > 0) {
+          results[0] = `This doesn't look like a content repository; ${results[0]}`;
+        }
+
+        cb(null, results);
+      });
+    },
+    contentRepositoryPath: (cb) => {
+      if (contentRepositoryPath === null) {
+        return cb(null, []);
+      }
+
+      let allOf = (preparer === 'sphinx') ? ['conf.py'] : ['_config.yml'];
+
+      validateDirectory(contentRepositoryPath, allOf, (err, results) => {
+        if (err) return cb(err);
+
+        if (results.length > 0) {
+          results[0] = `This doesn't look like a ${preparer} repository: ${results[0]}`;
+          results.push("Try changing the preparer type or specifying a different path.");
+        }
+
+        cb(null, results);
+      });
+    }
+  }, callback);
+}
+
 export class ContentRepository {
 
   constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
