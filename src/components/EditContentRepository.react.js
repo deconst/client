@@ -146,40 +146,77 @@ var EditContentRepository = React.createClass({
     let banner = this.state.isNew ? "Add a Content Repository" : "Edit the Content Repository";
     let commit = this.state.isNew ? "Create" : "Save";
 
+    let displayNameSection = this.renderSection("displayName", "display-name", (
+      <div>
+        <h3>Display Name</h3>
+        <p className="explanation">Name that will appear in the repository list in this app.</p>
+        <input type="text" className="line" value={this.state.displayName} placeholder="derived from content repository path" onChange={this.handleDisplayNameChange}></input>
+      </div>
+    ));
+
+    let repositoryPathSection = this.renderSection("contentRepositoryPath", "content-repository-path", (
+      <div>
+        <h3>Content Repository Path</h3>
+        <p className="explanation">Filesystem path to the content repository.</p>
+        <input type="text" className="line fs-path" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
+        <button className="btn btn-default btn-sm browse" onClick={this.handleOpenContent}>browse</button>
+      </div>
+    ));
+
+    let controlRepositorySection = this.renderSection("controlRepositoryLocation", "control-repository-location", (
+      <div>
+        <h3>Control Repository Location</h3>
+        <p className="explanation">Filesystem path to the control repository.</p>
+        <input type="text" className="line fs-path" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
+        <button className="btn btn-default btn-sm browse" onClick={this.handleOpenControl}>browse</button>
+      </div>
+    ));
+
+    let preparerSection = this.renderSection("preparer", "preparer", (
+      <div>
+        <h3>Preparer</h3>
+        <p className="explanation">Preparer to use to prepare the content.</p>
+        <select value={this.state.preparer} onChange={this.handlePreparerChange}>
+          <option value="sphinx">Sphinx</option>
+          <option value="jekyll">Jekyll</option>
+        </select>
+      </div>
+    ));
+
     return (
       <div className="edit-content-repository">
         <div className="container">
           <h1>{banner}</h1>
-          <div className="display-name">
-            <h3>Display Name</h3>
-            <p className="explanation">Name that will appear in the repository list in this app.</p>
-            <input type="text" className="line" value={this.state.displayName} placeholder="derived from content repository path" onChange={this.handleDisplayNameChange}></input>
-          </div>
-          <div className="repository-path">
-            <h3>Content Repository Path</h3>
-            <p className="explanation">Filesystem path to the content repository.</p>
-            <input type="text" className="line fs-path" value={this.state.contentRepositoryPath} placeholder="/some/path" onChange={this.handleRepositoryPathChange}></input>
-            <button className="btn btn-default btn-sm browse" onClick={this.handleOpenContent}>browse</button>
-          </div>
-          <div className="control-repository">
-            <h3>Control Repository Location</h3>
-            <p className="explanation">Filesystem path to the control repository.</p>
-            <input type="text" className="line fs-path" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
-            <button className="btn btn-default btn-sm browse" onClick={this.handleOpenControl}>browse</button>
-          </div>
-          <div className="preparer">
-            <h3>Preparer</h3>
-            <p className="explanation">Preparer to use to prepare the content.</p>
-            <select value={this.state.preparer} onChange={this.handlePreparerChange}>
-              <option value="sphinx">Sphinx</option>
-              <option value="jekyll">Jekyll</option>
-            </select>
-          </div>
+          {displayNameSection}
+          {repositoryPathSection}
+          {controlRepositorySection}
+          {preparerSection}
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
             <button className="btn btn-large btn-primary" onClick={this.handleCommit}>{commit}</button>
           </div>
         </div>
+      </div>
+    )
+  },
+
+  renderSection: function (componentName, className, inner) {
+    let errorMessages = this.state.validationErrors[componentName] || [];
+    let klasses = className;
+    let errorElement;
+
+    if (errorMessages.length > 0) {
+      klasses = `${klasses} with-errors`;
+
+      errorElement = (
+        <div className="validation-errors">{errorMessages.join(" ")}</div>
+      );
+    }
+
+    return (
+      <div className={klasses}>
+        {inner}
+        {errorElement}
       </div>
     )
   }
