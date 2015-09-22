@@ -52,7 +52,7 @@ function validateDirectory(dir, allOf, callback) {
     };
 
     async.reject(allOfPaths, isReadable, (missing) => {
-      let errors = missing.map((fpath) => `${path.basename(fpath)} isn't readable`);
+      let errors = missing.map((fpath) => `${path.basename(fpath)} can't be found.`);
 
       callback(null, errors || []);
     });
@@ -95,6 +95,7 @@ export function validateContentRepository({displayName, controlRepositoryLocatio
 
         if (results.length > 0) {
           results[0] = `This doesn't look like a ${preparer} repository: ${results[0]}`;
+          results.push("Try changing the preparer type or specifying a different path.");
         }
 
         cb(null, results);
