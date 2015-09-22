@@ -22,6 +22,7 @@ var EditContentRepository = React.createClass({
       contentRepositoryPath: null,
       controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx",
+      canCreate: false,
       validationErrors: {
         displayName: [],
         controlRepositoryLocation: [],
@@ -55,7 +56,14 @@ var EditContentRepository = React.createClass({
           return;
         }
 
-        this.setState({validationErrors: results});
+        let validationErrorCount = Object.keys(results).reduce((sum, k) => sum + results[k].length, 0);
+
+        let canCreate = validationErrorCount === 0 &&
+          this.state.displayName !== null &&
+          this.state.contentRepositoryPath !== null &&
+          this.state.controlRepositoryLocation !== null;
+
+        this.setState({validationErrors: results, canCreate});
       });
     });
   },
@@ -193,7 +201,7 @@ var EditContentRepository = React.createClass({
           {preparerSection}
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
-            <button className="btn btn-large btn-primary" onClick={this.handleCommit}>{commit}</button>
+            <button className="btn btn-large btn-primary" onClick={this.handleCommit} disabled={! this.state.canCreate}>{commit}</button>
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ function validateDirectory(dir, allOf, callback) {
     async.reject(allOfPaths, isReadable, (missing) => {
       let errors = missing.map((fpath) => `${path.basename(fpath)} isn't readable`);
 
-      callback(null, errors);
+      callback(null, errors || []);
     });
   });
 }
