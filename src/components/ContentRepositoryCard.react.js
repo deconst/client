@@ -4,6 +4,12 @@ import shell from 'shell';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 
 var ContentRepositoryCard = React.createClass({
+  getInitialState: function () {
+    return {
+      isRemoving: false
+    };
+  },
+
   handlePreview: function () {
     shell.openExternal(this.props.repository.publicURL());
   },
@@ -13,8 +19,16 @@ var ContentRepositoryCard = React.createClass({
     ContentRepositoryActions.prepareControl(this.props.repository);
   },
 
+  handleMaybeRemove: function () {
+    this.setState({isRemoving: true});
+  },
+
   handleRemove: function () {
     ContentRepositoryActions.remove(this.props.repository);
+  },
+
+  handleNevermind: function() {
+    this.setState({isRemoving: false});
   },
 
   handleRetry: function () {
@@ -22,6 +36,14 @@ var ContentRepositoryCard = React.createClass({
   },
 
   render: function () {
+    if (!this.state.isRemoving) {
+      return this.renderActive();
+    } else {
+      return this.renderRemovalConfirmation();
+    }
+  },
+
+  renderActive: function () {
     let repo = this.props.repository;
     let nameElement, detailElement, retryElement, submitElement;
 
@@ -66,13 +88,30 @@ var ContentRepositoryCard = React.createClass({
             {retryElement}
             <li>{submitElement}</li>
             <li><Router.Link to="editRepository" params={{id: repo.id}} className="btn btn-link">edit</Router.Link></li>
-            <li><a className="btn btn-link" onClick={this.handleRemove}>remove</a></li>
+            <li><a className="btn btn-link" onClick={this.handleMaybeRemove}>remove</a></li>
           </ul>
         </div>
         {detailElement}
       </div>
-    )
+    );
+  },
+
+  renderRemovalConfirmation: function () {
+    let repo = this.props.repository;
+
+    return (
+      <div className="content-repository-card maybe-delete">
+        <div className="headline">
+          <span className="preview">Really delete {repo.name()}?</span>
+          <ul className="controls">
+            <li><a className="btn btn-link btn-danger" onClick={this.handleRemove}>yes, really</a></li>
+            <li><a className="btn btn-link" onClick={this.handleNevermind}>what, no</a></li>
+          </ul>
+        </div>
+      </div>
+    );
   }
+
 })
 
 module.exports = ContentRepositoryCard;
