@@ -126,57 +126,90 @@ export function availableTemplates (controlRepositoryLocation, callback) {
   });
 };
 
-export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
+function interpretMaps(deconstConfig, contentMap) {
   let contentIDBase = DEFAULT_CONTENT_ID_BASE;
   let site = DEFAULT_SITE;
   let prefix = "/";
   let isMapped = false;
 
-  // Parse the _deconst.json file to determine the content ID base.
-  try {
-    let deconstJSON = JSON.parse(
-      fs.readFileSync(path.join(contentRepositoryPath, '_deconst.json'))
-    );
-
-    contentIDBase = normalize(deconstJSON.contentIDBase);
-  } catch (err) {
-    if (err.code !== 'ENOENT') {
-      console.error(err);
-    }
+  if (deconstConfig !== null) {
+    contentIDBase = normalize(deconstConfig.contentIDBase);
   }
 
+  let sites = Object.keys(contentMap);
+
+  sites.forEach((eachSite) => {
+    let siteMap = contentMap[site].content || {};
+    let matchingPrefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
+
+    if (matchingPrefix !== undefined && ! eachSite) {
+      site = eachSite;
+      prefix = matchingPrefix;
+      isMapped = true;
+    }
+  });
+
+  // Map to the first site in the conf file, if any are available, so that you at least have
+  // a default template to render with.
+  if (! site && sites.length > 0) {
+    site = sites[0];
+  }
+
+  return {contentIDBase, site, prefix, isMapped};
+};
+
+export function readMaps(contentRepositoryPath, controlRepositoryLocation, callback) {
+  let deconstConfigPath = path.join(contentRepositoryPath, '_deconst.json');
   let configRoot = path.join(controlRepositoryLocation, 'config');
+  let contentMapPath = path.join(configRoot, 'content.json');
+
+  let jsonDefaultingTo = (p, def, cb) => (err) => {
+    fs.readFile(p, {encoding: 'utf-8'}, (err, data) => {
+      if (err) {
+        if (err.code !== 'ENOENT') {
+          return cb(err);
+        }
+
+        return cb(null, def);
+      }
+
+      try {
+        return cb(null, JSON.parse(data));
+      } catch (e) {
+        return cb(null, def);
+      }
+    });
+  };
+
+  async.parallel({
+    deconstConfig: jsonDefaultingTo(deconstConfigPath, null),
+    contentMap: jsonDefaultingTo(contentMapPath, null)
+  }, (err, results) => {
+    if (err) return callback(err);
+
+    callback(null, interpretMaps(results.deconstConfig, results.contentMap));
+  });
+};
+
+export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
+  let deconstConfig = null;
+  let contentMap = {};
+
+  // Parse the _deconst.json file to determine the content ID base.
+  try {
+    deconstConfig = JSON.parse(
+      fs.readFileSync(path.join(contentRepositoryPath, '_deconst.json'))
+    );
+  } catch (err) {};
 
   // Parse the content map from the control repository. Determine:
   // * The first site that contains the content ID.
   // * The subpath that the content ID is mapped to.
   try {
-    let contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'content.json')));
-    let sites = Object.keys(contentMap);
+    contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'config', 'content.json')));
+  } catch (err) {};
 
-    sites.forEach((eachSite) => {
-      let siteMap = contentMap[site].content || {};
-      let matchingPrefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
-
-      if (matchingPrefix !== undefined && ! eachSite) {
-        site = eachSite;
-        prefix = matchingPrefix;
-        isMapped = true;
-      }
-    });
-
-    // Map to the first site in the conf file, if any are available, so that you at least have
-    // a default template to render with.
-    if (! site && sites.length > 0) {
-      site = sites[0];
-    }
-  } catch (err) {
-    if (err.code !== 'ENOENT') {
-      console.error(err);
-    }
-  }
-
-  return {contentIDBase, site, prefix, isMapped};
+  return interpretMaps(deconstConfig, contentMap);
 };
 
 export class ContentRepository {
