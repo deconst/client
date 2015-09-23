@@ -105,6 +105,27 @@ export function validateContentRepository({displayName, controlRepositoryLocatio
   }, callback);
 }
 
+export function availableTemplates (controlRepositoryLocation, callback) {
+  // End the root path with a / so the slice works properly.
+  let templateRoot = path.join(controlRepositoryLocation, "templates", this.site) + '/';
+  let templatePaths = [];
+
+  walk.files(templateRoot, (basedir, filename, stat, next) => {
+    let relativeDirPath = basedir.slice(templateRoot.length);
+
+    if (relativeDirPath.startsWith('_')) {
+      return next();
+    }
+
+    let templatePath = path.join(relativeDirPath, filename);
+    templatePaths.push(templatePath);
+  }, (err) => {
+    if (err) return callback(err);
+
+    callback(null, templatePaths);
+  });
+}
+
 export class ContentRepository {
 
   constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
@@ -219,27 +240,6 @@ export class ContentRepository {
 
   contentURL() {
     return this._containerURL(this.contentContainer);
-  }
-
-  availableTemplates(callback) {
-    // End the root path with a / so the slice works properly.
-    let templateRoot = path.join(this.controlRepositoryLocation, "templates", this.site) + '/';
-    let templatePaths = [];
-
-    walk.files(templateRoot, (basedir, filename, stat, next) => {
-      let relativeDirPath = basedir.slice(templateRoot.length);
-
-      if (relativeDirPath.startsWith('_')) {
-        return next();
-      }
-
-      let templatePath = path.join(relativeDirPath, filename);
-      templatePaths.push(templatePath);
-    }, (err) => {
-      if (err) return callback(err);
-
-      callback(null, templatePaths);
-    });
   }
 
   canSubmit() {
