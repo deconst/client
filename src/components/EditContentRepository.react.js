@@ -2,6 +2,7 @@ import path from 'path';
 import React from 'react/addons';
 import Router from 'react-router';
 import remote from 'remote';
+import _ from 'underscore';
 
 var dialog = remote.require('dialog');
 
@@ -84,14 +85,31 @@ var EditContentRepository = React.createClass({
 
           this.setState({isMapped: results.isMapped});
 
-          availableTemplates(this.state.controlRepositoryLocation, results.site, (err, templateOptions) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
+          if (!results.isMapped) {
+            availableTemplates(this.state.controlRepositoryLocation, results.site, (err, templateOptions) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
 
-            this.setState({templateOptions});
-          });
+              let results = {templateOptions};
+              let needsReset = false;
+
+              if (this.state.template) {
+                needsReset = ! _.contains(templateOptions, this.state.template);
+              }
+
+              if (! this.state.template || needsReset) {
+                let choice = _.find(templateOptions, (each) => /default/.test(each))
+                if (choice === undefined && templateOptions.length > 0) {
+                  choice = templateOptions[0];
+                }
+                results.template = choice;
+              }
+
+              this.setState(results);
+            });
+          }
         });
       }
     });
