@@ -2,10 +2,16 @@ import path from 'path';
 import React from 'react/addons';
 import Router from 'react-router';
 import remote from 'remote';
+import _ from 'underscore';
 
 var dialog = remote.require('dialog');
 
-import {ContentRepository, validateContentRepository} from '../utils/ContentRepositoryUtil';
+import {
+  ContentRepository,
+  validateContentRepository,
+  readMaps,
+  availableTemplates
+} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -23,6 +29,9 @@ var EditContentRepository = React.createClass({
       controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx",
       canCreate: false,
+      isMapped: false,
+      template: null,
+      templateOptions: [],
       validationErrors: {
         displayName: [],
         controlRepositoryLocation: [],
@@ -50,6 +59,10 @@ var EditContentRepository = React.createClass({
 
   revalidate: function (nstate) {
     this.setState(nstate, () => {
+      let hasDisplay = this.state.displayName !== null;
+      let hasContent = this.state.contentRepositoryPath !== null;
+      let hasControl = this.state.controlRepositoryLocation !== null;
+
       validateContentRepository(this.state, (err, results) => {
         if (err) {
           console.error(err);
@@ -58,13 +71,47 @@ var EditContentRepository = React.createClass({
 
         let validationErrorCount = Object.keys(results).reduce((sum, k) => sum + results[k].length, 0);
 
-        let canCreate = validationErrorCount === 0 &&
-          this.state.displayName !== null &&
-          this.state.contentRepositoryPath !== null &&
-          this.state.controlRepositoryLocation !== null;
+        let canCreate = validationErrorCount === 0 && hasDisplay && hasContent && hasControl;
 
         this.setState({validationErrors: results, canCreate});
       });
+
+      if (hasContent && hasControl) {
+        readMaps(this.state.contentRepositoryPath, this.state.controlRepositoryLocation, (err, results) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          this.setState({isMapped: results.isMapped});
+
+          if (!results.isMapped) {
+            availableTemplates(this.state.controlRepositoryLocation, results.site, (err, templateOptions) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+
+              let results = {templateOptions};
+              let needsReset = false;
+
+              if (this.state.template) {
+                needsReset = ! _.contains(templateOptions, this.state.template);
+              }
+
+              if (! this.state.template || needsReset) {
+                let choice = _.find(templateOptions, (each) => /default/.test(each))
+                if (choice === undefined && templateOptions.length > 0) {
+                  choice = templateOptions[0];
+                }
+                results.template = choice;
+              }
+
+              this.setState(results);
+            });
+          }
+        });
+      }
     });
   },
 
@@ -119,6 +166,10 @@ var EditContentRepository = React.createClass({
     this.revalidate({preparer: e.target.value});
   },
 
+  handleTemplateChange: function (e) {
+    this.revalidate({template: e.target.value});
+  },
+
   handleCancel: function () {
     this.transitionTo("repositoryList");
   },
@@ -133,7 +184,8 @@ var EditContentRepository = React.createClass({
         displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
-        this.state.preparer
+        this.state.preparer,
+        this.state.template
       );
     } else {
       ContentRepositoryActions.edit(
@@ -141,7 +193,8 @@ var EditContentRepository = React.createClass({
         displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
-        this.state.preparer
+        this.state.preparer,
+        this.state.template
       );
     }
 
@@ -191,6 +244,31 @@ var EditContentRepository = React.createClass({
       </div>
     ));
 
+    let templateExplanation, templateDisable, templateOptions;
+    if (this.state.isMapped) {
+      templateExplanation = "Your content is mapped in the control repository, so no manual template selection is necessary.";
+      templateDisable = true;
+    } else if (this.state.templateOptions.length === 0) {
+      templateExplanation = "No templates to choose from, yet. Please specify both a control and content repository.";
+      templateDisable = true;
+    } else {
+      templateExplanation = "Template to use while rendering this unmapped content.";
+      templateDisable = false;
+      templateOptions = this.state.templateOptions.map((tpath) => {
+        return <option key={tpath} value={tpath}>{tpath}</option>;
+      });
+    }
+
+    let templateSection = this.renderSection("template", "template", (
+      <div>
+        <h3>Template</h3>
+        <p className="explanation">{templateExplanation}</p>
+        <select value={this.state.template} onChange={this.handleTemplateChange} disabled={templateDisable}>
+          {templateOptions}
+        </select>
+      </div>
+    ));
+
     return (
       <div className="edit-content-repository">
         <div className="container">
@@ -199,6 +277,7 @@ var EditContentRepository = React.createClass({
           {repositoryPathSection}
           {controlRepositorySection}
           {preparerSection}
+          {templateSection}
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
             <button className="btn btn-large btn-primary" onClick={this.handleCommit} disabled={! this.state.canCreate}>{commit}</button>

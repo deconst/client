@@ -47,7 +47,7 @@ if (process.platform === 'win32') {
 app.on('ready', function () {
   var mainWindow = new BrowserWindow({
     width: size.width || 600,
-    height: size.height || 650,
+    height: size.height || 700,
     'min-width': os.platform() === 'win32' ? 400 : 600,
     'min-height': os.platform() === 'win32' ? 260 : 100,
     resizable: true,

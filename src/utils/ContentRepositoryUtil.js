@@ -4,6 +4,7 @@ import path from 'path';
 import util from 'util';
 import async from 'async';
 import mkdirp from 'mkdirp';
+import walk from 'fs-walk';
 import osenv from 'osenv';
 import urlJoin from 'url-join';
 import _ from 'underscore';
@@ -44,8 +45,6 @@ function validateDirectory(dir, allOf, callback) {
     }
 
     let allOfPaths = allOf.map((fname) => path.join(dir, fname));
-
-    console.log(`Testing paths: ${allOfPaths.join(', ')}`);
 
     let isReadable = (p, cb) => {
       fs.access(p, fs.R_OK, (err) => cb(err === null));
@@ -104,14 +103,132 @@ export function validateContentRepository({displayName, controlRepositoryLocatio
   }, callback);
 }
 
+export function availableTemplates (controlRepositoryLocation, site, callback) {
+  // End the root path with a / so the slice works properly.
+  let templateRoot = path.join(controlRepositoryLocation, "templates", site) + '/';
+  let templatePaths = [];
+
+  walk.files(templateRoot, (basedir, filename, stat, next) => {
+    let relativeDirPath = basedir.slice(templateRoot.length);
+
+    if (relativeDirPath.startsWith('_')) {
+      return next();
+    }
+
+    let templatePath = path.join(relativeDirPath, filename);
+    templatePaths.push(templatePath);
+
+    next();
+  }, (err) => {
+    if (err) return callback(err);
+
+    callback(null, templatePaths);
+  });
+};
+
+function interpretMaps(deconstConfig, contentMap, routesMap) {
+  let contentIDBase = DEFAULT_CONTENT_ID_BASE;
+  let site = null;
+  let prefix = "/";
+  let templateRoutes = routesMap;
+  let isMapped = false;
+
+  if (deconstConfig !== null) {
+    contentIDBase = normalize(deconstConfig.contentIDBase);
+  }
+
+  let sites = Object.keys(contentMap);
+
+  sites.forEach((eachSite) => {
+    let siteMap = contentMap[eachSite].content || {};
+    let matchingPrefix = _.findKey(siteMap, (id) => normalize(id) === contentIDBase);
+
+    if (matchingPrefix !== undefined && ! site) {
+      site = eachSite;
+      prefix = matchingPrefix;
+      isMapped = true;
+    }
+  });
+
+  // Map to the first site in the conf file, if any are available, so that you at least have
+  // a default template to render with.
+  if (! site) {
+    if (sites.length > 0) {
+      site = sites[0];
+    } else {
+      site = DEFAULT_SITE;
+    }
+  }
+
+  return {contentIDBase, site, prefix, templateRoutes, isMapped};
+};
+
+export function readMaps(contentRepositoryPath, controlRepositoryLocation, callback) {
+  let deconstConfigPath = path.join(contentRepositoryPath, '_deconst.json');
+  let configRoot = path.join(controlRepositoryLocation, 'config');
+  let contentMapPath = path.join(configRoot, 'content.json');
+  let templateMapPath = path.join(configRoot, 'routes.json');
+
+  let jsonDefaultingTo = (p, def) => (cb) => {
+    fs.readFile(p, {encoding: 'utf-8'}, (err, data) => {
+      if (err) {
+        if (err.code !== 'ENOENT') {
+          return cb(err);
+        }
+
+        return cb(null, def);
+      }
+
+      let parsed = def;
+
+      try {
+        parsed = JSON.parse(data);
+      } catch (e) {};
+
+      cb(null, parsed);
+    });
+  };
+
+  async.parallel({
+    deconstConfig: jsonDefaultingTo(deconstConfigPath, null),
+    contentMap: jsonDefaultingTo(contentMapPath, {}),
+    templateMap: jsonDefaultingTo(templateMapPath, {})
+  }, (err, results) => {
+    if (err) return callback(err);
+
+    callback(null, interpretMaps(results.deconstConfig, results.contentMap, results.templateMap));
+  });
+};
+
+export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
+  let deconstConfig = null;
+  let contentMap = {};
+  let templateMap = {};
+
+  try {
+    deconstConfig = JSON.parse(fs.readFileSync(path.join(contentRepositoryPath, '_deconst.json')));
+  } catch (err) {};
+
+  try {
+    contentMap = JSON.parse(fs.readFileSync(path.join(controlRepositoryLocation, 'config', 'content.json')));
+  } catch (err) {};
+
+  try {
+    templateMap = JSON.parse(fs.readFileSync(path.join(controlRepositoryLocation, 'config', 'routes.json')));
+  } catch (err) {};
+
+  return interpretMaps(deconstConfig, contentMap, templateMap);
+};
+
 export class ContentRepository {
 
-  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer, template) {
     this.id = id || lastID++;
     this.displayName = displayName;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.preparer = preparer;
+    this.template = template;
 
     this.state = "launching";
     this.hasPrepared = false;
@@ -128,69 +245,18 @@ export class ContentRepository {
       lastID = this.id + 1;
     }
 
-    // Parse the _deconst.json file to determine the content ID base.
-    try {
-      let deconstJSON = JSON.parse(
-        fs.readFileSync(path.join(this.contentRepositoryPath, '_deconst.json'))
-      );
+    // Read the control repository configuration maps.
+    let result = readMapsSync(this.contentRepositoryPath, this.controlRepositoryLocation);
 
-      this.contentIDBase = normalize(deconstJSON.contentIDBase);
-    } catch (err) {
-      console.error(err);
-    }
+    this.contentIDBase = result.contentIDBase;
+    this.site = result.site;
+    this.prefix = result.prefix;
+    this.templateRoutes = result.templateRoutes;
+    this.isMapped = result.isMapped;
 
-    if (! this.contentIDBase) {
-      this.contentIDBase = DEFAULT_CONTENT_ID_BASE;
-    }
-
-    let configRoot = path.join(this.controlRepositoryLocation, 'config');
-
-    // Parse the content map from the control repository. Determine:
-    // * The first site that contains the content ID.
-    // * The subpath that the content ID is mapped to.
-    try {
-      let contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'content.json')));
-      let sites = Object.keys(contentMap);
-
-      sites.forEach((site) => {
-        let siteMap = contentMap[site].content || {};
-        let prefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
-
-        if (prefix !== undefined && ! this.site) {
-          this.site = site;
-          this.prefix = prefix;
-        }
-      });
-
-      // Map to the first site in the conf file, if any are available, so that you at least have
-      // a default template to render with.
-      if (! this.site && sites.length > 0) {
-        this.site = sites[0];
-      }
-    } catch (err) {
-      console.error(err);
-    }
-
-    // Fall back to DEFAULT_SITE if there are no content mappings at all.
-    if (! this.site) {
-      this.site = DEFAULT_SITE;
-    }
-
-    if (! this.prefix) {
-      this.prefix = '/';
-    }
-
-    // Parse the route map from the control repository. Determine:
-    // * Which templates should be included in the template routes
-    try {
-      let routesDoc = JSON.parse(fs.readFileSync(path.join(configRoot, 'routes.json')));
-      this.templateRoutes = routesDoc[this.site].routes;
-    } catch (err) {
-      console.error(err);
-    }
-
-    if (! this.templateRoutes) {
-      this.templateRoutes = {};
+    // Inject the template selection if necessary.
+    if (!this.isMapped && this.template) {
+      this.templateRoutes[`^${this.prefix}.*`] = this.template;
     }
   }
 
