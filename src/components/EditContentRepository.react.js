@@ -5,7 +5,7 @@ import remote from 'remote';
 
 var dialog = remote.require('dialog');
 
-import {ContentRepository, validateContentRepository} from '../utils/ContentRepositoryUtil';
+import {ContentRepository, validateContentRepository, readMapsSync} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -23,6 +23,9 @@ var EditContentRepository = React.createClass({
       controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx",
       canCreate: false,
+      isMapped: true,
+      template: null,
+      templateOptions: [],
       validationErrors: {
         displayName: [],
         controlRepositoryLocation: [],
@@ -64,6 +67,24 @@ var EditContentRepository = React.createClass({
           this.state.controlRepositoryLocation !== null;
 
         this.setState({validationErrors: results, canCreate});
+      });
+
+      readMaps(this.state.contentRepositoryPath, this.state.controlRepositoryLocation, (err, results) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        this.setState({isMapped: results.isMapped});
+      });
+
+      availableTemplates(this.state.controlRepositoryLocation, (err, templateOptions) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        this.setState({templateOptions});
       });
     });
   },
