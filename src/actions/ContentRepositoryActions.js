@@ -4,22 +4,22 @@ import ContentRepositoryUtil, {ContentRepository} from '../utils/ContentReposito
 
 class ContentRepositoryActions {
 
-  launch (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  launch (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer, template) {
     let repo = new ContentRepository(
       id, displayName,
       controlRepositoryLocation, contentRepositoryPath,
-      preparer
+      preparer, template
     );
     this.dispatch({repo});
 
     ContentRepositoryUtil.launchServicePod(repo);
   }
 
-  edit (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  edit (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer, template) {
     this.dispatch({
       id, displayName,
       controlRepositoryLocation, contentRepositoryPath,
-      preparer
+      preparer, template
     });
   }
 

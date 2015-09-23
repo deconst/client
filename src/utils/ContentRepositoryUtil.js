@@ -222,12 +222,13 @@ export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
 
 export class ContentRepository {
 
-  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer) {
+  constructor (id, displayName, controlRepositoryLocation, contentRepositoryPath, preparer, template) {
     this.id = id || lastID++;
     this.displayName = displayName;
     this.controlRepositoryLocation = controlRepositoryLocation;
     this.contentRepositoryPath = contentRepositoryPath;
     this.preparer = preparer;
+    this.template = template;
 
     this.state = "launching";
     this.hasPrepared = false;
@@ -252,6 +253,11 @@ export class ContentRepository {
     this.prefix = result.prefix;
     this.templateRoutes = result.templateRoutes;
     this.isMapped = result.isMapped;
+
+    // Inject the template selection if necessary.
+    if (!this.isMapped && this.template) {
+      this.templateRoutes[`^${this.prefix}.*`] = this.template;
+    }
   }
 
   name () {

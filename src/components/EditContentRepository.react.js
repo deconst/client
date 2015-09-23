@@ -184,7 +184,8 @@ var EditContentRepository = React.createClass({
         displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
-        this.state.preparer
+        this.state.preparer,
+        this.state.template
       );
     } else {
       ContentRepositoryActions.edit(
@@ -192,7 +193,8 @@ var EditContentRepository = React.createClass({
         displayName,
         this.state.controlRepositoryLocation,
         this.state.contentRepositoryPath,
-        this.state.preparer
+        this.state.preparer,
+        this.state.template
       );
     }
 
