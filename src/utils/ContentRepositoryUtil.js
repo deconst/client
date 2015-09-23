@@ -46,8 +46,6 @@ function validateDirectory(dir, allOf, callback) {
 
     let allOfPaths = allOf.map((fname) => path.join(dir, fname));
 
-    console.log(`Testing paths: ${allOfPaths.join(', ')}`);
-
     let isReadable = (p, cb) => {
       fs.access(p, fs.R_OK, (err) => cb(err === null));
     };
@@ -105,9 +103,9 @@ export function validateContentRepository({displayName, controlRepositoryLocatio
   }, callback);
 }
 
-export function availableTemplates (controlRepositoryLocation, callback) {
+export function availableTemplates (controlRepositoryLocation, site, callback) {
   // End the root path with a / so the slice works properly.
-  let templateRoot = path.join(controlRepositoryLocation, "templates", this.site) + '/';
+  let templateRoot = path.join(controlRepositoryLocation, "templates", site) + '/';
   let templatePaths = [];
 
   walk.files(templateRoot, (basedir, filename, stat, next) => {
@@ -119,6 +117,8 @@ export function availableTemplates (controlRepositoryLocation, callback) {
 
     let templatePath = path.join(relativeDirPath, filename);
     templatePaths.push(templatePath);
+
+    next();
   }, (err) => {
     if (err) return callback(err);
 
@@ -128,7 +128,7 @@ export function availableTemplates (controlRepositoryLocation, callback) {
 
 function interpretMaps(deconstConfig, contentMap, routesMap) {
   let contentIDBase = DEFAULT_CONTENT_ID_BASE;
-  let site = DEFAULT_SITE;
+  let site = null;
   let prefix = "/";
   let templateRoutes = routesMap;
   let isMapped = false;
@@ -140,10 +140,10 @@ function interpretMaps(deconstConfig, contentMap, routesMap) {
   let sites = Object.keys(contentMap);
 
   sites.forEach((eachSite) => {
-    let siteMap = contentMap[site].content || {};
-    let matchingPrefix = _.findKey(siteMap, (id) => normalize(id) === this.contentIDBase);
+    let siteMap = contentMap[eachSite].content || {};
+    let matchingPrefix = _.findKey(siteMap, (id) => normalize(id) === contentIDBase);
 
-    if (matchingPrefix !== undefined && ! eachSite) {
+    if (matchingPrefix !== undefined && ! site) {
       site = eachSite;
       prefix = matchingPrefix;
       isMapped = true;
@@ -152,8 +152,12 @@ function interpretMaps(deconstConfig, contentMap, routesMap) {
 
   // Map to the first site in the conf file, if any are available, so that you at least have
   // a default template to render with.
-  if (! site && sites.length > 0) {
-    site = sites[0];
+  if (! site) {
+    if (sites.length > 0) {
+      site = sites[0];
+    } else {
+      site = DEFAULT_SITE;
+    }
   }
 
   return {contentIDBase, site, prefix, templateRoutes, isMapped};
@@ -165,7 +169,7 @@ export function readMaps(contentRepositoryPath, controlRepositoryLocation, callb
   let contentMapPath = path.join(configRoot, 'content.json');
   let templateMapPath = path.join(configRoot, 'routes.json');
 
-  let jsonDefaultingTo = (p, def, cb) => (err) => {
+  let jsonDefaultingTo = (p, def) => (cb) => {
     fs.readFile(p, {encoding: 'utf-8'}, (err, data) => {
       if (err) {
         if (err.code !== 'ENOENT') {
@@ -175,11 +179,13 @@ export function readMaps(contentRepositoryPath, controlRepositoryLocation, callb
         return cb(null, def);
       }
 
+      let parsed = def;
+
       try {
-        return cb(null, JSON.parse(data));
-      } catch (e) {
-        return cb(null, def);
-      }
+        parsed = JSON.parse(data);
+      } catch (e) {};
+
+      cb(null, parsed);
     });
   };
 
@@ -204,11 +210,11 @@ export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
   } catch (err) {};
 
   try {
-    contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'config', 'content.json')));
+    contentMap = JSON.parse(fs.readFileSync(path.join(controlRepositoryLocation, 'config', 'content.json')));
   } catch (err) {};
 
   try {
-    templateMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'config', 'routes.json')));
+    templateMap = JSON.parse(fs.readFileSync(path.join(controlRepositoryLocation, 'config', 'routes.json')));
   } catch (err) {};
 
   return interpretMaps(deconstConfig, contentMap, templateMap);

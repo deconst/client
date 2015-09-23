@@ -5,7 +5,12 @@ import remote from 'remote';
 
 var dialog = remote.require('dialog');
 
-import {ContentRepository, validateContentRepository, readMaps} from '../utils/ContentRepositoryUtil';
+import {
+  ContentRepository,
+  validateContentRepository,
+  readMaps,
+  availableTemplates
+} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -53,6 +58,10 @@ var EditContentRepository = React.createClass({
 
   revalidate: function (nstate) {
     this.setState(nstate, () => {
+      let hasDisplay = this.state.displayName !== null;
+      let hasContent = this.state.contentRepositoryPath !== null;
+      let hasControl = this.state.controlRepositoryLocation !== null;
+
       validateContentRepository(this.state, (err, results) => {
         if (err) {
           console.error(err);
@@ -61,31 +70,30 @@ var EditContentRepository = React.createClass({
 
         let validationErrorCount = Object.keys(results).reduce((sum, k) => sum + results[k].length, 0);
 
-        let canCreate = validationErrorCount === 0 &&
-          this.state.displayName !== null &&
-          this.state.contentRepositoryPath !== null &&
-          this.state.controlRepositoryLocation !== null;
+        let canCreate = validationErrorCount === 0 && hasDisplay && hasContent && hasControl;
 
         this.setState({validationErrors: results, canCreate});
       });
 
-      readMaps(this.state.contentRepositoryPath, this.state.controlRepositoryLocation, (err, results) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
+      if (hasContent && hasControl) {
+        readMaps(this.state.contentRepositoryPath, this.state.controlRepositoryLocation, (err, results) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
 
-        this.setState({isMapped: results.isMapped});
-      });
+          this.setState({isMapped: results.isMapped});
 
-      availableTemplates(this.state.controlRepositoryLocation, (err, templateOptions) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
+          availableTemplates(this.state.controlRepositoryLocation, results.site, (err, templateOptions) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
 
-        this.setState({templateOptions});
-      });
+            this.setState({templateOptions});
+          });
+        });
+      }
     });
   },
 
@@ -224,7 +232,7 @@ var EditContentRepository = React.createClass({
           <p className="explanation">Template to use while rendering this unmapped content.</p>
           <select value={this.state.template} onChange={this.handleTemplateChange}>
             {this.state.templateOptions.map((tpath) => {
-              <option key={tpath} value={tpath}>{tpath}</option>
+              return <option key={tpath} value={tpath}>{tpath}</option>;
             })}
           </select>
         </div>
