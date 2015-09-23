@@ -160,15 +160,18 @@ export class ContentRepository {
         if (prefix !== undefined && ! this.site) {
           this.site = site;
           this.prefix = prefix;
+          this.isMapped = true;
         }
       });
 
       // Map to the first site in the conf file, if any are available, so that you at least have
       // a default template to render with.
       if (! this.site && sites.length > 0) {
+        this.isMapped = false;
         this.site = sites[0];
       }
     } catch (err) {
+      this.isMapped = false;
       console.error(err);
     }
 
