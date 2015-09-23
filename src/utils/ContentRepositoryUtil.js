@@ -4,6 +4,7 @@ import path from 'path';
 import util from 'util';
 import async from 'async';
 import mkdirp from 'mkdirp';
+import walk from 'fs-walk';
 import osenv from 'osenv';
 import urlJoin from 'url-join';
 import _ from 'underscore';
@@ -215,6 +216,27 @@ export class ContentRepository {
 
   contentURL() {
     return this._containerURL(this.contentContainer);
+  }
+
+  availableTemplates(callback) {
+    // End the root path with a / so the slice works properly.
+    let templateRoot = path.join(this.controlRepositoryLocation, "templates", this.site) + '/';
+    let templatePaths = [];
+
+    walk.files(templateRoot, (basedir, filename, stat, next) => {
+      let relativeDirPath = basedir.slice(templateRoot.length);
+
+      if (relativeDirPath.startsWith('_')) {
+        return next();
+      }
+
+      let templatePath = path.join(relativeDirPath, filename);
+      templatePaths.push(templatePath);
+    }, (err) => {
+      if (err) return callback(err);
+
+      callback(null, templatePaths);
+    });
   }
 
   canSubmit() {
