@@ -126,10 +126,11 @@ export function availableTemplates (controlRepositoryLocation, callback) {
   });
 };
 
-function interpretMaps(deconstConfig, contentMap) {
+function interpretMaps(deconstConfig, contentMap, routesMap) {
   let contentIDBase = DEFAULT_CONTENT_ID_BASE;
   let site = DEFAULT_SITE;
   let prefix = "/";
+  let templateRoutes = routesMap;
   let isMapped = false;
 
   if (deconstConfig !== null) {
@@ -155,13 +156,14 @@ function interpretMaps(deconstConfig, contentMap) {
     site = sites[0];
   }
 
-  return {contentIDBase, site, prefix, isMapped};
+  return {contentIDBase, site, prefix, templateRoutes, isMapped};
 };
 
 export function readMaps(contentRepositoryPath, controlRepositoryLocation, callback) {
   let deconstConfigPath = path.join(contentRepositoryPath, '_deconst.json');
   let configRoot = path.join(controlRepositoryLocation, 'config');
   let contentMapPath = path.join(configRoot, 'content.json');
+  let templateMapPath = path.join(configRoot, 'routes.json');
 
   let jsonDefaultingTo = (p, def, cb) => (err) => {
     fs.readFile(p, {encoding: 'utf-8'}, (err, data) => {
@@ -183,33 +185,33 @@ export function readMaps(contentRepositoryPath, controlRepositoryLocation, callb
 
   async.parallel({
     deconstConfig: jsonDefaultingTo(deconstConfigPath, null),
-    contentMap: jsonDefaultingTo(contentMapPath, null)
+    contentMap: jsonDefaultingTo(contentMapPath, {}),
+    templateMap: jsonDefaultingTo(templateMapPath, {})
   }, (err, results) => {
     if (err) return callback(err);
 
-    callback(null, interpretMaps(results.deconstConfig, results.contentMap));
+    callback(null, interpretMaps(results.deconstConfig, results.contentMap, results.templateMap));
   });
 };
 
 export function readMapsSync(contentRepositoryPath, controlRepositoryLocation) {
   let deconstConfig = null;
   let contentMap = {};
+  let templateMap = {};
 
-  // Parse the _deconst.json file to determine the content ID base.
   try {
-    deconstConfig = JSON.parse(
-      fs.readFileSync(path.join(contentRepositoryPath, '_deconst.json'))
-    );
+    deconstConfig = JSON.parse(fs.readFileSync(path.join(contentRepositoryPath, '_deconst.json')));
   } catch (err) {};
 
-  // Parse the content map from the control repository. Determine:
-  // * The first site that contains the content ID.
-  // * The subpath that the content ID is mapped to.
   try {
     contentMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'config', 'content.json')));
   } catch (err) {};
 
-  return interpretMaps(deconstConfig, contentMap);
+  try {
+    templateMap = JSON.parse(fs.readFileSync(path.join(configRoot, 'config', 'routes.json')));
+  } catch (err) {};
+
+  return interpretMaps(deconstConfig, contentMap, templateMap);
 };
 
 export class ContentRepository {
@@ -242,22 +244,8 @@ export class ContentRepository {
     this.contentIDBase = result.contentIDBase;
     this.site = result.site;
     this.prefix = result.prefix;
+    this.templateRoutes = result.templateRoutes;
     this.isMapped = result.isMapped;
-
-    // Parse the route map from the control repository. Determine:
-    // * Which templates should be included in the template routes
-    try {
-      let routesDoc = JSON.parse(fs.readFileSync(path.join(configRoot, 'routes.json')));
-      this.templateRoutes = routesDoc[this.site].routes;
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        console.error(err);
-      }
-    }
-
-    if (! this.templateRoutes) {
-      this.templateRoutes = {};
-    }
   }
 
   name () {
