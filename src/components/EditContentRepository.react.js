@@ -29,7 +29,7 @@ var EditContentRepository = React.createClass({
       controlRepositoryLocation: lastControlRepository,
       preparer: "sphinx",
       canCreate: false,
-      isMapped: true,
+      isMapped: false,
       template: null,
       templateOptions: [],
       validationErrors: {
@@ -244,20 +244,30 @@ var EditContentRepository = React.createClass({
       </div>
     ));
 
-    let templateSection;
-    if (! this.state.isMapped) {
-      templateSection = this.renderSection("template", "template", (
-        <div>
-          <h3>Template</h3>
-          <p className="explanation">Template to use while rendering this unmapped content.</p>
-          <select value={this.state.template} onChange={this.handleTemplateChange}>
-            {this.state.templateOptions.map((tpath) => {
-              return <option key={tpath} value={tpath}>{tpath}</option>;
-            })}
-          </select>
-        </div>
-      ));
-    };
+    let templateExplanation, templateDisable, templateOptions;
+    if (this.state.isMapped) {
+      templateExplanation = "Your content is mapped in the control repository, so no manual template selection is necessary.";
+      templateDisable = true;
+    } else if (this.state.templateOptions.length === 0) {
+      templateExplanation = "No templates to choose from, yet. Please specify both a control and content repository.";
+      templateDisable = true;
+    } else {
+      templateExplanation = "Template to use while rendering this unmapped content.";
+      templateDisable = false;
+      templateOptions = this.state.templateOptions.map((tpath) => {
+        return <option key={tpath} value={tpath}>{tpath}</option>;
+      });
+    }
+
+    let templateSection = this.renderSection("template", "template", (
+      <div>
+        <h3>Template</h3>
+        <p className="explanation">{templateExplanation}</p>
+        <select value={this.state.template} onChange={this.handleTemplateChange} disabled={templateDisable}>
+          {templateOptions}
+        </select>
+      </div>
+    ));
 
     return (
       <div className="edit-content-repository">
