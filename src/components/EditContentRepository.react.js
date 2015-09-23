@@ -5,7 +5,7 @@ import remote from 'remote';
 
 var dialog = remote.require('dialog');
 
-import {ContentRepository, validateContentRepository, readMapsSync} from '../utils/ContentRepositoryUtil';
+import {ContentRepository, validateContentRepository, readMaps} from '../utils/ContentRepositoryUtil';
 import ContentRepositoryActions from '../actions/ContentRepositoryActions';
 import ContentRepositoryStore from '../stores/ContentRepositoryStore';
 
@@ -140,6 +140,10 @@ var EditContentRepository = React.createClass({
     this.revalidate({preparer: e.target.value});
   },
 
+  handleTemplateChange: function (e) {
+    this.revalidate({template: e.target.value});
+  },
+
   handleCancel: function () {
     this.transitionTo("repositoryList");
   },
@@ -212,6 +216,21 @@ var EditContentRepository = React.createClass({
       </div>
     ));
 
+    let templateSection;
+    if (! this.state.isMapped) {
+      templateSection = this.renderSection("template", "template", (
+        <div>
+          <h3>Template</h3>
+          <p className="explanation">Template to use while rendering this unmapped content.</p>
+          <select value={this.state.template} onChange={this.handleTemplateChange}>
+            {this.state.templateOptions.map((tpath) => {
+              <option key={tpath} value={tpath}>{tpath}</option>
+            })}
+          </select>
+        </div>
+      ));
+    };
+
     return (
       <div className="edit-content-repository">
         <div className="container">
@@ -220,6 +239,7 @@ var EditContentRepository = React.createClass({
           {repositoryPathSection}
           {controlRepositorySection}
           {preparerSection}
+          {templateSection}
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
             <button className="btn btn-large btn-primary" onClick={this.handleCommit} disabled={! this.state.canCreate}>{commit}</button>
