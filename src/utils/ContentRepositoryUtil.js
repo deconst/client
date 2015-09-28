@@ -160,6 +160,11 @@ function interpretMaps(deconstConfig, contentMap, routesMap) {
     }
   }
 
+  // Ensure that the template route map contains, at least, the site that we're rendering.
+  if (! templateRoutes[site]) {
+    templateRoutes[site] = {routes: {}};
+  }
+
   return {contentIDBase, site, prefix, templateRoutes, isMapped};
 };
 
@@ -256,7 +261,8 @@ export class ContentRepository {
 
     // Inject the template selection if necessary.
     if (!this.isMapped && this.template) {
-      this.templateRoutes[`^${this.prefix}.*`] = this.template;
+      this.templateRoutes[this.site] = {routes: {}}
+      this.templateRoutes[this.site].routes[`^${this.prefix}.*`] = this.template;
     }
   }
 
@@ -382,9 +388,7 @@ export default {
     contentMap[repo.site].content[repo.prefix] = repo.contentIDBase;
     contentMap[repo.site].proxy["/__local_asset__/"] = "http://content:8080/assets/";
 
-    let templateRoutes = {};
-    templateRoutes[repo.site] = {};
-    templateRoutes[repo.site].routes = repo.templateRoutes;
+    let templateRoutes = repo.templateRoutes;
 
     let controlOverrideDir = path.join(osenv.home(), '.deconst', 'control-' + repo.id);
     let mapOverridePath = path.join(controlOverrideDir, 'content.json');
