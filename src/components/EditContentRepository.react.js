@@ -215,6 +215,17 @@ var EditContentRepository = React.createClass({
       </div>
     ));
 
+    let preparerSection = this.renderSection("preparer", "preparer", (
+      <div>
+        <h3>Preparer</h3>
+        <p className="explanation">Preparer to use to prepare the content.</p>
+        <select value={this.state.preparer} onChange={this.handlePreparerChange}>
+          <option value="sphinx">Sphinx</option>
+          <option value="jekyll">Jekyll</option>
+        </select>
+      </div>
+    ));
+
     let repositoryPathSection = this.renderSection("contentRepositoryPath", "content-repository-path", (
       <div>
         <h3>Content Repository Path</h3>
@@ -230,17 +241,6 @@ var EditContentRepository = React.createClass({
         <p className="explanation">Filesystem path to the control repository.</p>
         <input type="text" className="line fs-path" value={this.state.controlRepositoryLocation} placeholder="https://github.com/deconst/deconst-docs-control.git" onChange={this.handleControlRepositoryChange}></input>
         <button className="btn btn-default btn-sm browse" onClick={this.handleOpenControl}>browse</button>
-      </div>
-    ));
-
-    let preparerSection = this.renderSection("preparer", "preparer", (
-      <div>
-        <h3>Preparer</h3>
-        <p className="explanation">Preparer to use to prepare the content.</p>
-        <select value={this.state.preparer} onChange={this.handlePreparerChange}>
-          <option value="sphinx">Sphinx</option>
-          <option value="jekyll">Jekyll</option>
-        </select>
       </div>
     ));
 
@@ -274,9 +274,9 @@ var EditContentRepository = React.createClass({
         <div className="container">
           <h1>{banner}</h1>
           {displayNameSection}
+          {preparerSection}
           {repositoryPathSection}
           {controlRepositorySection}
-          {preparerSection}
           {templateSection}
           <div className="controls">
             <button className="btn btn-large btn-default" onClick={this.handleCancel}>Cancel</button>
