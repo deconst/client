@@ -46,10 +46,12 @@ var EditContentRepository = React.createClass({
     if (id !== undefined) {
       let repo = ContentRepositoryStore.getState().repositories[id];
 
-      this.setState({
+      this.revalidate({
         isNew: false,
         manualDisplayName: !! repo.displayName,
         displayName: repo.name(),
+        template: repo.template,
+        templateOptions: [repo.template],
         contentRepositoryPath: repo.contentRepositoryPath,
         controlRepositoryLocation: repo.controlRepositoryLocation,
         preparer: repo.preparer
